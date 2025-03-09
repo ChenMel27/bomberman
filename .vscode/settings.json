@@ -1,0 +1,27 @@
+{
+    "files.associations": {
+        ".fantomasignore": "ignore",
+        "stdlib.h": "c",
+        "player.h": "c",
+        "logic.h": "c",
+        "stdio.h": "c",
+        "start.h": "c",
+        "game.h": "c",
+        "hold.h": "c",
+        "stronger.h": "c",
+        "sloper.h": "c",
+        "foreground.h": "c",
+        "background.h": "c",
+        "bombs.h": "c",
+        "sprite2.h": "c",
+        "tileset.h": "c",
+        "mode0.h": "c",
+        "sprite.h": "c",
+        "enemy.h": "c",
+        "gba.h": "c",
+        "gameone.h": "c",
+        "sprites.h": "c",
+        "helper.h": "c",
+        "print.h": "c"
+    }
+}
