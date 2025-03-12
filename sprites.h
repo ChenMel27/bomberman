@@ -119,6 +119,7 @@ typedef struct {
     int yVel;
     int width;
     int height;
+    int active;
     int timeUntilNextFrame;
     int direction;
     int isAnimating;

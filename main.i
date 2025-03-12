@@ -126,6 +126,7 @@ typedef struct {
     int yVel;
     int width;
     int height;
+    int active;
     int timeUntilNextFrame;
     int direction;
     int isAnimating;
@@ -374,19 +375,22 @@ void drawGameOne();
 
 
 
-typedef enum {
-    DOWN,
-    RIGHT,
-    UP,
-    LEFT
-} DIRECTION;
+
+int isPassablePixel(int x, int y);
+unsigned char colorAt(int x, int y);
+
 
 unsigned short getTileAtWorld(int worldX, int worldY);
 int checkCollisionWorld(int worldX, int worldY);
 int checkCollisionDestructableWall(int worldX, int worldY);
 int checkCollisionSoftBlock(int worldX, int worldY);
 int checkCollisionWin(int worldX, int worldY);
+void destroySoftBlockAt(int worldX, int worldY);
 # 10 "main.c" 2
+# 1 "collisionMap.h" 1
+# 20 "collisionMap.h"
+extern const unsigned short collisionMapBitmap[65536];
+# 11 "main.c" 2
 
 OBJ_ATTR shadowOAM[128];
 
@@ -411,6 +415,8 @@ void win();
 
 enum {START, GAMEONE, GAMETWO, PAUSE, WIN, LOSE};
 int state;
+
+int lives;
 
 unsigned short oldButtons;
 unsigned short buttons;
@@ -462,7 +468,7 @@ void initialize() {
     initializeEnemies();
     hideSprites();
     waitForVBlank();
-    DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128*4);
+    DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128 * 4);
 
     goToStart();
 }
@@ -484,7 +490,6 @@ void goToGameOne() {
 }
 
 void gameOne() {
-
     updateGameOne();
     drawGameOne();
     waitForVBlank();
@@ -537,4 +542,8 @@ void win() {
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         goToStart();
     }
+}
+
+inline unsigned char colorAt(int x, int y) {
+    return ((unsigned char *)collisionMapBitmap)[(y) * 240 + (x)];
 }

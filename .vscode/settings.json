@@ -22,6 +22,7 @@
         "gameone.h": "c",
         "sprites.h": "c",
         "helper.h": "c",
-        "print.h": "c"
+        "print.h": "c",
+        "collisionmap.h": "c"
     }
 }

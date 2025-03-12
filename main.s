@@ -522,9 +522,31 @@ win:
 	@ link register save eliminated.
 	b	lose
 	.size	win, .-win
-	.comm	player,48,4
+	.align	2
+	.global	colorAt
+	.syntax unified
+	.arm
+	.fpu softvfp
+	.type	colorAt, %function
+colorAt:
+	@ Function supports interworking.
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 0, uses_anonymous_args = 0
+	@ link register save eliminated.
+	ldr	r3, .L82
+	rsb	r1, r1, r1, lsl #4
+	add	r1, r0, r1, lsl #4
+	ldrb	r0, [r3, r1]	@ zero_extendqisi2
+	bx	lr
+.L83:
+	.align	2
+.L82:
+	.word	collisionMapBitmap
+	.size	colorAt, .-colorAt
+	.comm	player,52,4
 	.comm	buttons,2,2
 	.comm	oldButtons,2,2
+	.comm	lives,4,4
 	.comm	state,4,4
 	.comm	shadowOAM,1024,4
 	.ident	"GCC: (devkitARM release 53) 9.1.0"

@@ -1,17 +1,16 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-typedef enum {
-    DOWN,
-    RIGHT,
-    UP,
-    LEFT
-} DIRECTION;
+// --- Collision Map Helpers ---
+int isPassablePixel(int x, int y);
+unsigned char colorAt(int x, int y);
 
+// --- Tile-based Collision Functions (for bomb explosion, etc.) ---
 unsigned short getTileAtWorld(int worldX, int worldY);
 int checkCollisionWorld(int worldX, int worldY);
 int checkCollisionDestructableWall(int worldX, int worldY);
 int checkCollisionSoftBlock(int worldX, int worldY);
 int checkCollisionWin(int worldX, int worldY);
+void destroySoftBlockAt(int worldX, int worldY);
 
-#endif
+#endif // HELPER_H

@@ -7,6 +7,7 @@
 #include "sprite.h"
 #include "gameOne.h"
 #include "helper.h"
+#include "collisionMap.h"
 
 OBJ_ATTR shadowOAM[128];
 
@@ -31,6 +32,8 @@ void win();
 // States
 enum {START, GAMEONE, GAMETWO, PAUSE, WIN, LOSE};
 int state;
+
+int lives;
 
 unsigned short oldButtons;
 unsigned short buttons;
@@ -82,7 +85,7 @@ void initialize() {
     initializeEnemies();
     hideSprites();
     waitForVBlank();
-    DMANow(3, shadowOAM, OAM, 128*4);
+    DMANow(3, shadowOAM, OAM, 128 * 4);
 
     goToStart();
 }
@@ -104,7 +107,6 @@ void goToGameOne() {
 }
 
 void gameOne() {
-
     updateGameOne();
     drawGameOne();
     waitForVBlank();
@@ -157,4 +159,8 @@ void win() {
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();
     }
+}
+
+inline unsigned char colorAt(int x, int y) {
+    return ((unsigned char *)collisionMapBitmap)[(y) * 240 + (x)];
 }

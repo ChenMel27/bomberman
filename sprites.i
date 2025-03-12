@@ -120,6 +120,7 @@ typedef struct {
     int yVel;
     int width;
     int height;
+    int active;
     int timeUntilNextFrame;
     int direction;
     int isAnimating;
@@ -128,7 +129,22 @@ typedef struct {
     u8 oamIndex;
 } SPRITE;
 # 2 "sprites.c" 2
+# 1 "helper.h" 1
 
+
+
+
+int isPassablePixel(int x, int y);
+unsigned char colorAt(int x, int y);
+
+
+unsigned short getTileAtWorld(int worldX, int worldY);
+int checkCollisionWorld(int worldX, int worldY);
+int checkCollisionDestructableWall(int worldX, int worldY);
+int checkCollisionSoftBlock(int worldX, int worldY);
+int checkCollisionWin(int worldX, int worldY);
+void destroySoftBlockAt(int worldX, int worldY);
+# 3 "sprites.c" 2
 
 # 1 "mode0.h" 1
 # 32 "mode0.h"
@@ -1006,6 +1022,7 @@ extern long double strtold (const char *restrict, char **restrict);
 # 20 "sprites.c"
 
 # 20 "sprites.c"
+extern int lives;
 extern OBJ_ATTR shadowOAM[128];
 
 typedef enum {
@@ -1029,8 +1046,8 @@ void initializePlayer() {
     player.currentFrame = 0;
     player.direction = 0;
     player.oamIndex = 0;
-    player.width = 32;
-    player.height = 32;
+    player.width = 8;
+    player.height = 8;
     player.numFrames = 4;
     player.timeUntilNextFrame = 15;
     player.currentFrame = 0;
@@ -1048,6 +1065,7 @@ void initializeEnemies() {
     enemy1.height = 8;
     enemy1.numFrames = 4;
     enemy1.timeUntilNextFrame = 15;
+    enemy1.active = 1;
 
     enemy2.x = 136;
     enemy2.y = 24;
@@ -1058,6 +1076,7 @@ void initializeEnemies() {
     enemy2.height = 8;
     enemy2.numFrames = 4;
     enemy2.timeUntilNextFrame = 15;
+    enemy2.active = 1;
 
     enemy3.x = 24;
     enemy3.y = 136;
@@ -1070,6 +1089,7 @@ void initializeEnemies() {
     enemy3.timeUntilNextFrame = 4;
     enemy3.xVel = 3;
     enemy3.yVel = 3;
+    enemy3.active = 1;
 
     enemy4.x = 136;
     enemy4.y = 136;
@@ -1082,79 +1102,136 @@ void initializeEnemies() {
     enemy4.timeUntilNextFrame = 4;
     enemy4.xVel = 3;
     enemy4.yVel = 3;
+    enemy4.active = 1;
 
 
     srand(0);
 }
 
-void updateEnemies() {
+void updatePlayer() {
 
+    int leftX = player.x;
+    int rightX = player.x + player.width - 1;
+    int topY = player.y;
+    int bottomY = player.y + player.height - 1;
+
+
+    if ((~(buttons) & ((1<<7)))) {
+        if (player.y + player.height < 256 &&
+            isPassablePixel(leftX, bottomY + 1) &&
+            isPassablePixel(rightX, bottomY + 1)) {
+            player.y++;
+        }
+        player.direction = DOWN;
+    }
+
+
+    if ((~(buttons) & ((1<<6)))) {
+        if (player.y > 0 &&
+            isPassablePixel(leftX, topY - 1) &&
+            isPassablePixel(rightX, topY - 1)) {
+            player.y--;
+        }
+        player.direction = UP;
+    }
+
+
+    if ((~(buttons) & ((1<<4)))) {
+        if (player.x + player.width < 512 &&
+            isPassablePixel(rightX + 1, topY) &&
+            isPassablePixel(rightX + 1, bottomY)) {
+            player.x++;
+        }
+        player.direction = RIGHT;
+    }
+
+
+    if ((~(buttons) & ((1<<5)))) {
+        if (player.x > 0 &&
+            isPassablePixel(leftX - 1, topY) &&
+            isPassablePixel(leftX - 1, bottomY)) {
+            player.x--;
+        }
+        player.direction = LEFT;
+    }
+
+
+    if ((!(~(oldButtons) & ((1<<2))) && (~(buttons) & ((1<<2)))) && !bomb.active) {
+        bomb.x = (player.x / 8) * 8;
+        bomb.y = (player.y / 8) * 8;
+        bomb.timer = 60;
+        bomb.active = 1;
+    }
+}
+
+
+
+
+
+void updateEnemies() {
     static int changeTimer = 0;
     changeTimer++;
 
 
     if (changeTimer % 30 == 0) {
-
-        if (enemy1.direction == LEFT || enemy1.direction == RIGHT) {
+        if (enemy1.direction == LEFT || enemy1.direction == RIGHT)
             enemy1.direction = (rand() % 2) ? UP : DOWN;
-        } else {
+        else
             enemy1.direction = (rand() % 2) ? LEFT : RIGHT;
-        }
 
-
-        if (enemy2.direction == LEFT || enemy2.direction == RIGHT) {
+        if (enemy2.direction == LEFT || enemy2.direction == RIGHT)
             enemy2.direction = (rand() % 2) ? UP : DOWN;
-        } else {
+        else
             enemy2.direction = (rand() % 2) ? LEFT : RIGHT;
-        }
     }
 
+
+    int e1_left = enemy1.x;
+    int e1_right = enemy1.x + enemy1.width - 1;
+    int e1_top = enemy1.y;
+    int e1_bottom = enemy1.y + enemy1.height - 1;
 
     if (enemy1.direction == DOWN) {
-        if (!checkCollisionWorld(enemy1.x, enemy1.y + 1) &&
-            !checkCollisionDestructableWall(enemy1.x, enemy1.y + 1)) {
+        if (isPassablePixel(e1_left, e1_bottom + 1) &&
+            isPassablePixel(e1_right, e1_bottom + 1))
             enemy1.y++;
-        }
     } else if (enemy1.direction == UP) {
-        if (!checkCollisionWorld(enemy1.x, enemy1.y - 1) &&
-            !checkCollisionDestructableWall(enemy1.x, enemy1.y - 1)) {
+        if (isPassablePixel(e1_left, e1_top - 1) &&
+            isPassablePixel(e1_right, e1_top - 1))
             enemy1.y--;
-        }
     } else if (enemy1.direction == RIGHT) {
-        if (!checkCollisionWorld(enemy1.x + 1, enemy1.y) &&
-            !checkCollisionDestructableWall(enemy1.x + 1, enemy1.y)) {
+        if (isPassablePixel(e1_right + 1, e1_top) &&
+            isPassablePixel(e1_right + 1, e1_bottom))
             enemy1.x++;
-        }
     } else if (enemy1.direction == LEFT) {
-        if (!checkCollisionWorld(enemy1.x - 1, enemy1.y) &&
-            !checkCollisionDestructableWall(enemy1.x - 1, enemy1.y)) {
+        if (isPassablePixel(e1_left - 1, e1_top) &&
+            isPassablePixel(e1_left - 1, e1_bottom))
             enemy1.x--;
-        }
     }
 
+
+    int e2_left = enemy2.x;
+    int e2_right = enemy2.x + enemy2.width - 1;
+    int e2_top = enemy2.y;
+    int e2_bottom = enemy2.y + enemy2.height - 1;
 
     if (enemy2.direction == DOWN) {
-        if (!checkCollisionWorld(enemy2.x, enemy2.y + 1) &&
-            !checkCollisionDestructableWall(enemy2.x, enemy2.y + 1)) {
+        if (isPassablePixel(e2_left, e2_bottom + 1) &&
+            isPassablePixel(e2_right, e2_bottom + 1))
             enemy2.y++;
-        }
     } else if (enemy2.direction == UP) {
-        if (!checkCollisionWorld(enemy2.x, enemy2.y - 1) &&
-            !checkCollisionDestructableWall(enemy2.x, enemy2.y - 1)) {
+        if (isPassablePixel(e2_left, e2_top - 1) &&
+            isPassablePixel(e2_right, e2_top - 1))
             enemy2.y--;
-        }
     } else if (enemy2.direction == RIGHT) {
-        if (!checkCollisionWorld(enemy2.x + 1, enemy2.y) &&
-            !checkCollisionDestructableWall(enemy2.x + 1, enemy2.y)) {
+        if (isPassablePixel(e2_right + 1, e2_top) &&
+            isPassablePixel(e2_right + 1, e2_bottom))
             enemy2.x++;
-        }
     } else if (enemy2.direction == LEFT) {
-        if (!checkCollisionWorld(enemy2.x - 1, enemy2.y) &&
-            !checkCollisionDestructableWall(enemy2.x - 1, enemy2.y)) {
+        if (isPassablePixel(e2_left - 1, e2_top) &&
+            isPassablePixel(e2_left - 1, e2_bottom))
             enemy2.x--;
-        }
     }
-
 
 
     static int enemyDelayCounter = 0;
@@ -1163,86 +1240,50 @@ void updateEnemies() {
         enemyDelayCounter = 0;
 
         if (player.x > enemy3.x) {
-            enemy3.x++;
+            int e3_right = enemy3.x + enemy3.width - 1;
+
+
+                enemy3.x++;
         } else if (player.x < enemy3.x) {
-            enemy3.x--;
+
+
+                enemy3.x--;
         }
+
         if (player.y > enemy3.y) {
-            enemy3.y++;
+            int e3_bottom = enemy3.y + enemy3.height - 1;
+
+
+                enemy3.y++;
         } else if (player.y < enemy3.y) {
-            enemy3.y--;
+
+
+                enemy3.y--;
         }
 
 
         if (player.x > enemy4.x) {
-            enemy4.x++;
+            int e4_right = enemy4.x + enemy4.width - 1;
+
+
+                enemy4.x++;
         } else if (player.x < enemy4.x) {
-            enemy4.x--;
+
+
+                enemy4.x--;
         }
+
         if (player.y > enemy4.y) {
-            enemy4.y++;
+            int e4_bottom = enemy4.y + enemy4.height - 1;
+
+
+                enemy4.y++;
         } else if (player.y < enemy4.y) {
-            enemy4.y--;
+
+
+                enemy4.y--;
         }
     }
-}
-
-void updatePlayer() {
-
-    if ((~(buttons) & ((1<<7)))) {
-        if (player.y < (32 * 8) - player.height) {
-            if (!checkCollisionWorld(player.x, player.y + 1) &&
-                !checkCollisionDestructableWall(player.x, player.y + 1)) {
-                ++player.y;
-
-            }
-        }
-        player.direction = DOWN;
-    }
-
-
-    if ((~(buttons) & ((1<<6)))) {
-        if (player.y > 0) {
-            if (!checkCollisionWorld(player.x, player.y - 1) &&
-                !checkCollisionDestructableWall(player.x, player.y - 1)) {
-                --player.y;
-
-            }
-        }
-        player.direction = UP;
-    }
-
-
-    if ((~(buttons) & ((1<<4)))) {
-        if (player.x < (32 * 8 - player.width)) {
-            if (!checkCollisionWorld(player.x + 1, player.y) &&
-                !checkCollisionDestructableWall(player.x + 1, player.y)) {
-                ++player.x;
-            }
-        }
-        player.direction = RIGHT;
-    }
-
-
-    if ((~(buttons) & ((1<<5)))) {
-        if (player.x > 0) {
-            if (!checkCollisionWorld(player.x - 1, player.y) &&
-                !checkCollisionDestructableWall(player.x - 1, player.y)) {
-                --player.x;
-            }
-        }
-        player.direction = LEFT;
-    }
-
-
-    if((!(~(oldButtons) & ((1<<0))) && (~(buttons) & ((1<<0)))) && !bomb.active) {
-
-        bomb.x = (player.x / 8) * 8;
-        bomb.y = (player.y / 8) * 8;
-        bomb.timer = 60;
-        bomb.active = 1;
-    }
-
 }
 
 void updateBomb() {
@@ -1251,13 +1292,18 @@ void updateBomb() {
             bomb.timer--;
             if (bomb.timer == 0) {
 
-                bomb.explosionTimer = 15;
-
+                bomb.explosionTimer = 20;
                 handleExplosion(bomb.x, bomb.y);
             }
         } else if (bomb.explosionTimer > 0) {
             bomb.explosionTimer--;
             if (bomb.explosionTimer == 0) {
+
+                shadowOAM[bomb.oamIndex].attr0 = (2<<8);
+                shadowOAM[6].attr0 = (2<<8);
+                shadowOAM[7].attr0 = (2<<8);
+                shadowOAM[8].attr0 = (2<<8);
+                shadowOAM[9].attr0 = (2<<8);
 
                 bomb.active = 0;
             }
@@ -1267,21 +1313,37 @@ void updateBomb() {
 
 
 void drawEnemies() {
-    shadowOAM[enemy1.oamIndex].attr0 = ((enemy1.y) & 0xFF) | (0<<14) | (0<<8);
-    shadowOAM[enemy1.oamIndex].attr1 = ((enemy1.x) & 0x1FF) | (0<<14);
-    shadowOAM[enemy1.oamIndex].attr2 = ((((0) * (32) + (13))) & 0x3FF) | (((0) & 0xF) <<12);
+    if (enemy1.active) {
+        shadowOAM[enemy1.oamIndex].attr0 = ((enemy1.y) & 0xFF) | (0<<14) | (0<<8);
+        shadowOAM[enemy1.oamIndex].attr1 = ((enemy1.x) & 0x1FF) | (0<<14);
+        shadowOAM[enemy1.oamIndex].attr2 = ((((0) * (32) + (13))) & 0x3FF) | (((0) & 0xF) <<12);
+    } else {
+        shadowOAM[enemy1.oamIndex].attr0 = (2<<8);
+    }
 
-    shadowOAM[enemy2.oamIndex].attr0 = ((enemy2.y) & 0xFF) | (0<<14) | (0<<8);
-    shadowOAM[enemy2.oamIndex].attr1 = ((enemy2.x) & 0x1FF) | (0<<14);
-    shadowOAM[enemy2.oamIndex].attr2 = ((((0) * (32) + (13))) & 0x3FF) | (((0) & 0xF) <<12);
+    if (enemy2.active) {
+        shadowOAM[enemy2.oamIndex].attr0 = ((enemy2.y) & 0xFF) | (0<<14) | (0<<8);
+        shadowOAM[enemy2.oamIndex].attr1 = ((enemy2.x) & 0x1FF) | (0<<14);
+        shadowOAM[enemy2.oamIndex].attr2 = ((((0) * (32) + (13))) & 0x3FF) | (((0) & 0xF) <<12);
+    } else {
+        shadowOAM[enemy2.oamIndex].attr0 = (2<<8);
+    }
 
-    shadowOAM[enemy3.oamIndex].attr0 = ((enemy3.y) & 0xFF) | (0<<14) | (0<<8);
-    shadowOAM[enemy3.oamIndex].attr1 = ((enemy3.x) & 0x1FF) | (0<<14);
-    shadowOAM[enemy3.oamIndex].attr2 = ((((0) * (32) + (14))) & 0x3FF) | (((0) & 0xF) <<12);
+    if (enemy3.active) {
+        shadowOAM[enemy3.oamIndex].attr0 = ((enemy3.y) & 0xFF) | (0<<14) | (0<<8);
+        shadowOAM[enemy3.oamIndex].attr1 = ((enemy3.x) & 0x1FF) | (0<<14);
+        shadowOAM[enemy3.oamIndex].attr2 = ((((0) * (32) + (14))) & 0x3FF) | (((0) & 0xF) <<12);
+    } else {
+        shadowOAM[enemy3.oamIndex].attr0 = (2<<8);
+    }
 
-    shadowOAM[enemy4.oamIndex].attr0 = ((enemy4.y) & 0xFF) | (0<<14) | (0<<8);
-    shadowOAM[enemy4.oamIndex].attr1 = ((enemy4.x) & 0x1FF) | (0<<14);
-    shadowOAM[enemy4.oamIndex].attr2 = ((((0) * (32) + (14))) & 0x3FF) | (((0) & 0xF) <<12);
+    if (enemy4.active) {
+        shadowOAM[enemy4.oamIndex].attr0 = ((enemy4.y) & 0xFF) | (0<<14) | (0<<8);
+        shadowOAM[enemy4.oamIndex].attr1 = ((enemy4.x) & 0x1FF) | (0<<14);
+        shadowOAM[enemy4.oamIndex].attr2 = ((((0) * (32) + (14))) & 0x3FF) | (((0) & 0xF) <<12);
+    } else {
+        shadowOAM[enemy4.oamIndex].attr0 = (2<<8);
+    }
 }
 
 void drawPlayer() {
@@ -1301,38 +1363,75 @@ void drawBomb() {
     if (bomb.active) {
         if (bomb.timer > 0) {
 
-            shadowOAM[bomb.oamIndex].attr0 = ((bomb.y) & 0xFF) | (0<<14);
+            shadowOAM[bomb.oamIndex].attr0 = ((bomb.y) & 0xFF) | (0<<14) | (0<<8);
             shadowOAM[bomb.oamIndex].attr1 = ((bomb.x) & 0x1FF);
-
-            shadowOAM[bomb.oamIndex].attr2 = ((((8) * (32) + (2))) & 0x3FF) | (((0) & 0xF) <<12);
+            shadowOAM[bomb.oamIndex].attr2 = ((((3) * (32) + (0))) & 0x3FF) | (((0) & 0xF) <<12);
         } else if (bomb.explosionTimer > 0) {
 
-
-
-            shadowOAM[bomb.oamIndex].attr0 = ((bomb.y) & 0xFF) | (0<<14);
+            shadowOAM[bomb.oamIndex].attr0 = ((bomb.y) & 0xFF) | (0<<14) | (0<<8);
             shadowOAM[bomb.oamIndex].attr1 = ((bomb.x) & 0x1FF);
-            shadowOAM[bomb.oamIndex].attr2 = ((((8) * (32) + (3))) & 0x3FF) | (((0) & 0xF) <<12);
+            shadowOAM[bomb.oamIndex].attr2 = ((((4) * (32) + (2))) & 0x3FF) | (((0) & 0xF) <<12);
 
 
+            if (checkCollisionDestructableWall(bomb.x - 8, bomb.y)) {
+                destroySoftBlockAt(bomb.x - 8, bomb.y);
+            }
+            if (!checkCollisionWorld(bomb.x - 8, bomb.y)) {
+                shadowOAM[6].attr0 = ((bomb.y) & 0xFF) | (0<<8);
+                shadowOAM[6].attr1 = ((bomb.x - 8) & 0x1FF);
+                shadowOAM[6].attr2 = ((((4) * (32) + (1))) & 0x3FF) | (((0) & 0xF) <<12);
+            } else {
+                shadowOAM[6].attr0 = (2<<8);
+            }
 
-            shadowOAM[6].attr0 = ((bomb.y) & 0xFF);
-            shadowOAM[6].attr1 = ((bomb.x - 8) & 0x1FF);
-            shadowOAM[6].attr2 = ((((8) * (32) + (3))) & 0x3FF) | (((0) & 0xF) <<12);
 
+            if (checkCollisionDestructableWall(bomb.x + 8, bomb.y)) {
+                destroySoftBlockAt(bomb.x + 8, bomb.y);
+            }
+            if (!checkCollisionWorld(bomb.x + 8, bomb.y)) {
+                shadowOAM[7].attr0 = ((bomb.y) & 0xFF) | (0<<8);
+                shadowOAM[7].attr1 = ((bomb.x + 8) & 0x1FF);
+                shadowOAM[7].attr2 = ((((4) * (32) + (3))) & 0x3FF) | (((0) & 0xF) <<12);
+            } else {
+                shadowOAM[7].attr0 = (2<<8);
+            }
+
+
+            if (checkCollisionDestructableWall(bomb.x, bomb.y - 8)) {
+                destroySoftBlockAt(bomb.x, bomb.y - 8);
+            }
+            if (!checkCollisionWorld(bomb.x, bomb.y - 8)) {
+                shadowOAM[8].attr0 = ((bomb.y - 8) & 0xFF) | (0<<8);
+                shadowOAM[8].attr1 = ((bomb.x) & 0x1FF);
+                shadowOAM[8].attr2 = ((((3) * (32) + (2))) & 0x3FF) | (((0) & 0xF) <<12);
+            } else {
+                shadowOAM[8].attr0 = (2<<8);
+            }
+
+
+            if (checkCollisionDestructableWall(bomb.x, bomb.y + 8)) {
+                destroySoftBlockAt(bomb.x, bomb.y + 8);
+            }
+            if (!checkCollisionWorld(bomb.x, bomb.y + 8)) {
+                shadowOAM[9].attr0 = ((bomb.y + 8) & 0xFF) | (0<<8);
+                shadowOAM[9].attr1 = ((bomb.x) & 0x1FF);
+                shadowOAM[9].attr2 = ((((5) * (32) + (2))) & 0x3FF) | (((0) & 0xF) <<12);
+            } else {
+                shadowOAM[9].attr0 = (2<<8);
+            }
         }
     }
 }
 
-
 int loseCondition() {
-    if (collision(enemy1.x, enemy1.y, enemy1.width, enemy1.y,
-        player.x, player.y, player.width, player.height) ||
-        collision(enemy2.x, enemy2.y, enemy2.width, enemy2.y,
-            player.x, player.y, player.width, player.height) ||
-        collision(enemy3.x, enemy3.y, enemy3.width, enemy3.y,
-            player.x, player.y, player.width, player.height) ||
-        collision(enemy4.x, enemy4.y, enemy4.width, enemy4.y,
-            player.x, player.y, player.width, player.height))
+    if (collision(enemy1.x, enemy1.y, enemy1.width, enemy1.height,
+                  player.x, player.y, player.width, player.height) ||
+        collision(enemy2.x, enemy2.y, enemy2.width, enemy2.height,
+                  player.x, player.y, player.width, player.height) ||
+        collision(enemy3.x, enemy3.y, enemy3.width, enemy3.height,
+                  player.x, player.y, player.width, player.height) ||
+        collision(enemy4.x, enemy4.y, enemy4.width, enemy4.height,
+                  player.x, player.y, player.width, player.height))
     {
         return 1;
     }
@@ -1343,8 +1442,9 @@ int winCondition() {
     if (checkCollisionWin(player.x, player.y)) {
         return 1;
     }
-    return(0);
+    return 0;
 }
+
 
 void handleExplosion(int bx, int by) {
 
@@ -1361,32 +1461,40 @@ void handleExplosion(int bx, int by) {
         int ey = explosionTiles[i][1];
 
 
-        if(collision(ex, ey, 8, 8, enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
-
+        if (enemy1.active && collision(ex, ey, 8, 8, enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
+            enemy1.active = 0;
             shadowOAM[enemy1.oamIndex].attr0 = (2<<8);
         }
-        if(collision(ex, ey, 8, 8, enemy2.x, enemy2.y, enemy2.width, enemy2.height)) {
+
+
+        if (enemy2.active && collision(ex, ey, 8, 8, enemy2.x, enemy2.y, enemy2.width, enemy2.height)) {
+            enemy2.active = 0;
             shadowOAM[enemy2.oamIndex].attr0 = (2<<8);
         }
-        if(collision(ex, ey, 8, 8, enemy3.x, enemy3.y, enemy3.width, enemy3.height)) {
+
+
+        if (enemy3.active && collision(ex, ey, 8, 8, enemy3.x, enemy3.y, enemy3.width, enemy3.height)) {
+            enemy3.active = 0;
             shadowOAM[enemy3.oamIndex].attr0 = (2<<8);
         }
-        if(collision(ex, ey, 8, 8, enemy4.x, enemy4.y, enemy4.width, enemy4.height)) {
+
+
+        if (enemy4.active && collision(ex, ey, 8, 8, enemy4.x, enemy4.y, enemy4.width, enemy4.height)) {
+            enemy4.active = 0;
             shadowOAM[enemy4.oamIndex].attr0 = (2<<8);
         }
 
 
-        if (checkCollisionSoftBlock(ex, ey)) {
+        if (checkCollisionDestructableWall(ex, ey)) {
             destroySoftBlockAt(ex, ey);
         }
 
 
-        if(collision(ex, ey, 8, 8, player.x, player.y, player.width, player.height)) {
-            return 0;
+        if (collision(ex, ey, 8, 8, player.x, player.y, player.width, player.height)) {
+
         }
     }
 }
-
 
 
 void hideSprites() {

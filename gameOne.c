@@ -11,9 +11,13 @@
 void updateGameOne() {
     updatePlayer();
     updateEnemies();
+    updateBomb();
 }
 
 void drawGameOne() {
     drawEnemies();
     drawPlayer();
+    drawBomb();
 }
+
+extern int lives;

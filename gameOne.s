@@ -28,6 +28,9 @@ updateGameOne:
 	ldr	r3, .L4+4
 	mov	lr, pc
 	bx	r3
+	ldr	r3, .L4+8
+	mov	lr, pc
+	bx	r3
 	pop	{r4, lr}
 	bx	lr
 .L5:
@@ -35,6 +38,7 @@ updateGameOne:
 .L4:
 	.word	updatePlayer
 	.word	updateEnemies
+	.word	updateBomb
 	.size	updateGameOne, .-updateGameOne
 	.align	2
 	.global	drawGameOne
@@ -53,6 +57,9 @@ drawGameOne:
 	ldr	r3, .L8+4
 	mov	lr, pc
 	bx	r3
+	ldr	r3, .L8+8
+	mov	lr, pc
+	bx	r3
 	pop	{r4, lr}
 	bx	lr
 .L9:
@@ -60,5 +67,6 @@ drawGameOne:
 .L8:
 	.word	drawEnemies
 	.word	drawPlayer
+	.word	drawBomb
 	.size	drawGameOne, .-drawGameOne
 	.ident	"GCC: (devkitARM release 53) 9.1.0"

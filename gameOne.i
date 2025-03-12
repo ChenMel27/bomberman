@@ -126,6 +126,7 @@ typedef struct {
     int yVel;
     int width;
     int height;
+    int active;
     int timeUntilNextFrame;
     int direction;
     int isAnimating;
@@ -349,7 +350,7 @@ void mgba_close(void);
 
 
 
-extern const unsigned short bgMap[2048];
+extern unsigned short bgMap[2048];
 # 6 "gameOne.c" 2
 # 1 "tileset.h" 1
 # 21 "tileset.h"
@@ -374,25 +375,24 @@ void drawGameOne();
 
 
 
-typedef enum {
-    DOWN,
-    RIGHT,
-    UP,
-    LEFT
-} DIRECTION;
-
 unsigned short getTileAtWorld(int worldX, int worldY);
 int checkCollisionWorld(int worldX, int worldY);
 int checkCollisionDestructableWall(int worldX, int worldY);
+int checkCollisionSoftBlock(int worldX, int worldY);
 int checkCollisionWin(int worldX, int worldY);
+void destroySoftBlockAt(int worldX, int worldY);
 # 10 "gameOne.c" 2
 
 void updateGameOne() {
     updatePlayer();
     updateEnemies();
+    updateBomb();
 }
 
 void drawGameOne() {
     drawEnemies();
     drawPlayer();
+    drawBomb();
 }
+
+extern int lives;
