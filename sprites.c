@@ -19,6 +19,7 @@
 
 extern int lives;
 extern OBJ_ATTR shadowOAM[128];
+int round = 1;
 
 typedef enum {
     DOWN,
@@ -49,59 +50,69 @@ void initializePlayer() {
     player.direction = RIGHT;
 }
 
-void initializeEnemies() {
-    // Initialize enemy1 attributes
-    enemy1.x = 104;
-    enemy1.y = 104;
-    enemy1.currentFrame = 0;
-    enemy1.direction = RIGHT;
-    enemy1.oamIndex = 1;
-    enemy1.width = 8;
-    enemy1.height = 8;
-    enemy1.numFrames = 4;
-    enemy1.timeUntilNextFrame = 15;
-    enemy1.active = 1;
 
-    enemy2.x = 136;
-    enemy2.y = 24;
-    enemy2.currentFrame = 0;
-    enemy2.direction = RIGHT;
-    enemy2.oamIndex = 2;
-    enemy2.width = 8;
-    enemy2.height = 8;
-    enemy2.numFrames = 4;
-    enemy2.timeUntilNextFrame = 15;
-    enemy2.active = 1;
+void initializeEnemies(int fullReset) {
+    if (fullReset) {  // If it's a new game, reset all enemies
+        enemy1.active = 1;
+        enemy2.active = 1;
+        enemy3.active = 1;
+        enemy4.active = 1;
+    }
 
-    enemy3.x = 24;
-    enemy3.y = 136;
-    enemy3.currentFrame = 0;
-    enemy3.direction = RIGHT;
-    enemy3.oamIndex = 3;
-    enemy3.width = 8;
-    enemy3.height = 8;
-    enemy3.numFrames = 3;
-    enemy3.timeUntilNextFrame = 4;
-    enemy3.xVel = 3;
-    enemy3.yVel = 3;
-    enemy3.active = 1;
+    if (enemy1.active) {
+        enemy1.x = 104;
+        enemy1.y = 104;
+        enemy1.currentFrame = 2;
+        enemy1.direction = RIGHT;
+        enemy1.oamIndex = 1;
+        enemy1.width = 8;
+        enemy1.height = 8;
+        enemy1.numFrames = 4;
+        enemy1.timeUntilNextFrame = 15;
+    }
 
-    enemy4.x = 136;
-    enemy4.y = 136;
-    enemy4.currentFrame = 0;
-    enemy4.direction = RIGHT;
-    enemy4.oamIndex = 4;
-    enemy4.width = 8;
-    enemy4.height = 8;
-    enemy4.numFrames = 3;
-    enemy4.timeUntilNextFrame = 4;
-    enemy4.xVel = 3;
-    enemy4.yVel = 3;
-    enemy4.active = 1;
+    if (enemy2.active) {
+        enemy2.x = 136;
+        enemy2.y = 24;
+        enemy2.currentFrame = 0;
+        enemy2.direction = RIGHT;
+        enemy2.oamIndex = 2;
+        enemy2.width = 8;
+        enemy2.height = 8;
+        enemy2.numFrames = 4;
+        enemy2.timeUntilNextFrame = 15;
+    }
 
-    // Seed the random number generator.
-    srand(0);
+    if (enemy3.active) {
+        enemy3.x = 24;
+        enemy3.y = 136;
+        enemy3.currentFrame = 0;
+        enemy3.direction = RIGHT;
+        enemy3.oamIndex = 3;
+        enemy3.width = 8;
+        enemy3.height = 8;
+        enemy3.numFrames = 3;
+        enemy3.timeUntilNextFrame = 4;
+        enemy3.xVel = 3;
+        enemy3.yVel = 3;
+    }
+
+    if (enemy4.active) {
+        enemy4.x = 136;
+        enemy4.y = 136;
+        enemy4.currentFrame = 0;
+        enemy4.direction = RIGHT;
+        enemy4.oamIndex = 4;
+        enemy4.width = 8;
+        enemy4.height = 8;
+        enemy4.numFrames = 3;
+        enemy4.timeUntilNextFrame = 4;
+        enemy4.xVel = 3;
+        enemy4.yVel = 3;
+    }
 }
+
+
 
 void updatePlayer() {
     // Calculate the four corners of the player sprite.
@@ -113,8 +124,8 @@ void updatePlayer() {
     // Move DOWN.
     if (BUTTON_HELD(BUTTON_DOWN)) {
         if (player.y + player.height < COLLISION_MAP_HEIGHT &&  // Use COLLISION_MAP_HEIGHT instead of 160
-            isPassablePixel(leftX, bottomY + 1) &&
-            isPassablePixel(rightX, bottomY + 1)) {
+            isPassablePixel(leftX, bottomY + 1, round) &&
+            isPassablePixel(rightX, bottomY + 1, round)) {
             player.y++;
         }
         player.direction = DOWN;
@@ -123,8 +134,8 @@ void updatePlayer() {
     // Move UP.
     if (BUTTON_HELD(BUTTON_UP)) {
         if (player.y > 0 &&
-            isPassablePixel(leftX, topY - 1) &&
-            isPassablePixel(rightX, topY - 1)) {
+            isPassablePixel(leftX, topY - 1, round) &&
+            isPassablePixel(rightX, topY - 1, round)) {
             player.y--;
         }
         player.direction = UP;
@@ -133,8 +144,8 @@ void updatePlayer() {
     // Move RIGHT.
     if (BUTTON_HELD(BUTTON_RIGHT)) {
         if (player.x + player.width < COLLISION_MAP_WIDTH &&  // Use COLLISION_MAP_WIDTH instead of 240
-            isPassablePixel(rightX + 1, topY) &&
-            isPassablePixel(rightX + 1, bottomY)) {
+            isPassablePixel(rightX + 1, topY, round) &&
+            isPassablePixel(rightX + 1, bottomY, round)) {
             player.x++;
         }
         player.direction = RIGHT;
@@ -143,8 +154,8 @@ void updatePlayer() {
     // Move LEFT.
     if (BUTTON_HELD(BUTTON_LEFT)) {
         if (player.x > 0 &&
-            isPassablePixel(leftX - 1, topY) &&
-            isPassablePixel(leftX - 1, bottomY)) {
+            isPassablePixel(leftX - 1, topY, round) &&
+            isPassablePixel(leftX - 1, bottomY, round)) {
             player.x--;
         }
         player.direction = LEFT;
@@ -166,120 +177,111 @@ void updatePlayer() {
 void updateEnemies() {
     static int changeTimer = 0;
     changeTimer++;
-    
-    // Every 30 frames, randomly change direction for enemy1 and enemy2.
+
+    // Every 30 frames, randomly change direction for enemy1 and enemy2
     if (changeTimer % 30 == 0) {
-        if (enemy1.direction == LEFT || enemy1.direction == RIGHT)
-            enemy1.direction = (rand() % 2) ? UP : DOWN;
-        else
-            enemy1.direction = (rand() % 2) ? LEFT : RIGHT;
-        
-        if (enemy2.direction == LEFT || enemy2.direction == RIGHT)
-            enemy2.direction = (rand() % 2) ? UP : DOWN;
-        else
-            enemy2.direction = (rand() % 2) ? LEFT : RIGHT;
+        if (enemy1.active) {
+            if (enemy1.direction == LEFT || enemy1.direction == RIGHT)
+                enemy1.direction = (rand() % 2) ? UP : DOWN;
+            else
+                enemy1.direction = (rand() % 2) ? LEFT : RIGHT;
+        }
+        if (enemy2.active) {
+            if (enemy2.direction == LEFT || enemy2.direction == RIGHT)
+                enemy2.direction = (rand() % 2) ? UP : DOWN;
+            else
+                enemy2.direction = (rand() % 2) ? LEFT : RIGHT;
+        }
     }
-    
-    // Update enemy1 using collision map checks.
-    int e1_left   = enemy1.x;
-    int e1_right  = enemy1.x + enemy1.width - 1;
-    int e1_top    = enemy1.y;
-    int e1_bottom = enemy1.y + enemy1.height - 1;
-    
-    if (enemy1.direction == DOWN) {
-        if (isPassablePixel(e1_left, e1_bottom + 1) &&
-            isPassablePixel(e1_right, e1_bottom + 1))
-            enemy1.y++;
-    } else if (enemy1.direction == UP) {
-        if (isPassablePixel(e1_left, e1_top - 1) &&
-            isPassablePixel(e1_right, e1_top - 1))
-            enemy1.y--;
-    } else if (enemy1.direction == RIGHT) {
-        if (isPassablePixel(e1_right + 1, e1_top) &&
-            isPassablePixel(e1_right + 1, e1_bottom))
-            enemy1.x++;
-    } else if (enemy1.direction == LEFT) {
-        if (isPassablePixel(e1_left - 1, e1_top) &&
-            isPassablePixel(e1_left - 1, e1_bottom))
-            enemy1.x--;
+
+    // Update enemy1 movement with improved collision checks (both corners)
+    if (enemy1.active) {
+        if (enemy1.direction == DOWN) {
+            if (isPassablePixel(enemy1.x, enemy1.y + enemy1.height, round) &&
+                isPassablePixel(enemy1.x + enemy1.width - 1, enemy1.y + enemy1.height, round)) {
+                enemy1.y++;
+            }
+        } else if (enemy1.direction == UP) {
+            if (isPassablePixel(enemy1.x, enemy1.y - 1, round) &&
+                isPassablePixel(enemy1.x + enemy1.width - 1, enemy1.y - 1, round)) {
+                enemy1.y--;
+            }
+        } else if (enemy1.direction == RIGHT) {
+            if (isPassablePixel(enemy1.x + enemy1.width, enemy1.y, round) &&
+                isPassablePixel(enemy1.x + enemy1.width, enemy1.y + enemy1.height - 1, round)) {
+                enemy1.x++;
+            }
+        } else if (enemy1.direction == LEFT) {
+            if (isPassablePixel(enemy1.x - 1, enemy1.y, round) &&
+                isPassablePixel(enemy1.x - 1, enemy1.y + enemy1.height - 1, round)) {
+                enemy1.x--;
+            }
+        }
     }
-    
-    // Update enemy2 using similar logic.
-    int e2_left   = enemy2.x;
-    int e2_right  = enemy2.x + enemy2.width - 1;
-    int e2_top    = enemy2.y;
-    int e2_bottom = enemy2.y + enemy2.height - 1;
-    
-    if (enemy2.direction == DOWN) {
-        if (isPassablePixel(e2_left, e2_bottom + 1) &&
-            isPassablePixel(e2_right, e2_bottom + 1))
-            enemy2.y++;
-    } else if (enemy2.direction == UP) {
-        if (isPassablePixel(e2_left, e2_top - 1) &&
-            isPassablePixel(e2_right, e2_top - 1))
-            enemy2.y--;
-    } else if (enemy2.direction == RIGHT) {
-        if (isPassablePixel(e2_right + 1, e2_top) &&
-            isPassablePixel(e2_right + 1, e2_bottom))
-            enemy2.x++;
-    } else if (enemy2.direction == LEFT) {
-        if (isPassablePixel(e2_left - 1, e2_top) &&
-            isPassablePixel(e2_left - 1, e2_bottom))
-            enemy2.x--;
+
+    // Update enemy2 movement with improved collision checks (both corners)
+    if (enemy2.active) {
+        if (enemy2.direction == DOWN) {
+            if (isPassablePixel(enemy2.x, enemy2.y + enemy2.height, round) &&
+                isPassablePixel(enemy2.x + enemy2.width - 1, enemy2.y + enemy2.height, round)) {
+                enemy2.y++;
+            }
+        } else if (enemy2.direction == UP) {
+            if (isPassablePixel(enemy2.x, enemy2.y - 1, round) &&
+                isPassablePixel(enemy2.x + enemy2.width - 1, enemy2.y - 1, round)) {
+                enemy2.y--;
+            }
+        } else if (enemy2.direction == RIGHT) {
+            if (isPassablePixel(enemy2.x + enemy2.width, enemy2.y, round) &&
+                isPassablePixel(enemy2.x + enemy2.width, enemy2.y + enemy2.height - 1, round)) {
+                enemy2.x++;
+            }
+        } else if (enemy2.direction == LEFT) {
+            if (isPassablePixel(enemy2.x - 1, enemy2.y, round) &&
+                isPassablePixel(enemy2.x - 1, enemy2.y + enemy2.height - 1, round)) {
+                enemy2.x--;
+            }
+        }
     }
-    
-    // Update enemy3 and enemy4 (they move toward the player).
+
+    // Update enemy3 and enemy4 (they chase the player)
     static int enemyDelayCounter = 0;
     enemyDelayCounter++;
-    if (enemyDelayCounter >= 3) {
+    
+    if (enemyDelayCounter >= 3) {  // Move enemies every 3 frames
         enemyDelayCounter = 0;
-        // Enemy3: Horizontal movement toward player.
-        if (player.x > enemy3.x) {
-            int e3_right = enemy3.x + enemy3.width - 1;
-            /* if (isPassablePixel(e3_right + 1, enemy3.y) &&
-                isPassablePixel(e3_right + 1, enemy3.y + enemy3.height - 1)) */
+
+        // Enemy3: Move towards player
+        if (enemy3.active) {
+            if (player.x > enemy3.x) {
                 enemy3.x++;
-        } else if (player.x < enemy3.x) {
-            /* if (isPassablePixel(enemy3.x - 1, enemy3.y) &&
-                isPassablePixel(enemy3.x - 1, enemy3.y + enemy3.height - 1)) */
+            } else if (player.x < enemy3.x) {
                 enemy3.x--;
-        }
-        // Enemy3: Vertical movement.
-        if (player.y > enemy3.y) {
-            int e3_bottom = enemy3.y + enemy3.height - 1;
-            /* if (isPassablePixel(enemy3.x, e3_bottom + 1) &&
-                isPassablePixel(enemy3.x + enemy3.width - 1, e3_bottom + 1)) */
+            }
+            if (player.y > enemy3.y) {
                 enemy3.y++;
-        } else if (player.y < enemy3.y) {
-            /* if (isPassablePixel(enemy3.x, enemy3.y - 1) &&
-                isPassablePixel(enemy3.x + enemy3.width - 1, enemy3.y - 1)) */
+            } else if (player.y < enemy3.y) {
                 enemy3.y--;
+            }
         }
-        
-        // Enemy4: Horizontal movement.
-        if (player.x > enemy4.x) {
-            int e4_right = enemy4.x + enemy4.width - 1;
-            /* if (isPassablePixel(e4_right + 1, enemy4.y) &&
-                isPassablePixel(e4_right + 1, enemy4.y + enemy4.height - 1)) */
+
+        // Enemy4: Move towards player
+        if (enemy4.active) {
+            if (player.x > enemy4.x) {
                 enemy4.x++;
-        } else if (player.x < enemy4.x) {
-            /* if (isPassablePixel(enemy4.x - 1, enemy4.y) &&
-                isPassablePixel(enemy4.x - 1, enemy4.y + enemy4.height - 1)) */
+            } else if (player.x < enemy4.x) {
                 enemy4.x--;
-        }
-        // Enemy4: Vertical movement.
-        if (player.y > enemy4.y) {
-            int e4_bottom = enemy4.y + enemy4.height - 1;
-            /* if (isPassablePixel(enemy4.x, e4_bottom + 1) &&
-                isPassablePixel(enemy4.x + enemy4.width - 1, e4_bottom + 1)) */
+            }
+            if (player.y > enemy4.y) {
                 enemy4.y++;
-        } else if (player.y < enemy4.y) {
-            /* if (isPassablePixel(enemy4.x, enemy4.y - 1) &&
-                isPassablePixel(enemy4.x + enemy4.width - 1, enemy4.y - 1)) */
+            } else if (player.y < enemy4.y) {
                 enemy4.y--;
+            }
         }
     }
 }
+
+
 
 void updateBomb() {
     if (bomb.active) {
@@ -306,40 +308,65 @@ void updateBomb() {
     }
 }
 
-// Updated drawEnemies() now only draws enemies that are active.
 void drawEnemies() {
+    // Enemy 1: alternates between T0,2 and T1,2
     if (enemy1.active) {
+        int tileRow = enemy1.currentFrame % 2; // 0 or 1 -> T0,2 or T1,2
+        int tileCol = 2;                     // Constant column 2
         shadowOAM[enemy1.oamIndex].attr0 = ATTR0_Y(enemy1.y) | ATTR0_SQUARE | ATTR0_REGULAR;
         shadowOAM[enemy1.oamIndex].attr1 = ATTR1_X(enemy1.x) | ATTR1_TINY;
-        shadowOAM[enemy1.oamIndex].attr2 = ATTR2_TILEID(13, 0) | ATTR2_PALROW(0);
+        if (enemy1.direction == RIGHT) {
+            shadowOAM[enemy1.oamIndex].attr1 |= ATTR1_HFLIP; // Flip horizontally when facing right
+        }
+        shadowOAM[enemy1.oamIndex].attr2 = ATTR2_TILEID(tileRow, tileCol) | ATTR2_PALROW(0);
     } else {
         shadowOAM[enemy1.oamIndex].attr0 = ATTR0_HIDE;
     }
     
+    // Enemy 2: alternates between T0,2 and T1,2
     if (enemy2.active) {
+        int tileRow = enemy2.currentFrame % 2; // 0 or 1
+        int tileCol = 2;                     // Constant column 2
         shadowOAM[enemy2.oamIndex].attr0 = ATTR0_Y(enemy2.y) | ATTR0_SQUARE | ATTR0_REGULAR;
         shadowOAM[enemy2.oamIndex].attr1 = ATTR1_X(enemy2.x) | ATTR1_TINY;
-        shadowOAM[enemy2.oamIndex].attr2 = ATTR2_TILEID(13, 0) | ATTR2_PALROW(0);
+        if (enemy2.direction == RIGHT) {
+            shadowOAM[enemy2.oamIndex].attr1 |= ATTR1_HFLIP;
+        }
+        shadowOAM[enemy2.oamIndex].attr2 = ATTR2_TILEID(tileRow, tileCol) | ATTR2_PALROW(0);
     } else {
         shadowOAM[enemy2.oamIndex].attr0 = ATTR0_HIDE;
     }
     
+    // Enemy 3: alternates between T2,2 and T3,2
     if (enemy3.active) {
+        int tileRow = (enemy3.currentFrame % 2) + 2; // 2 or 3 -> T2,2 or T3,2
+        int tileCol = 2;                          // Constant column 2
         shadowOAM[enemy3.oamIndex].attr0 = ATTR0_Y(enemy3.y) | ATTR0_SQUARE | ATTR0_REGULAR;
         shadowOAM[enemy3.oamIndex].attr1 = ATTR1_X(enemy3.x) | ATTR1_TINY;
-        shadowOAM[enemy3.oamIndex].attr2 = ATTR2_TILEID(14, 0) | ATTR2_PALROW(0);
+        if (enemy3.direction == RIGHT) {
+            shadowOAM[enemy3.oamIndex].attr1 |= ATTR1_HFLIP;
+        }
+        shadowOAM[enemy3.oamIndex].attr2 = ATTR2_TILEID(tileRow, tileCol) | ATTR2_PALROW(0);
     } else {
         shadowOAM[enemy3.oamIndex].attr0 = ATTR0_HIDE;
     }
     
+    // Enemy 4: alternates between T2,2 and T3,2
     if (enemy4.active) {
+        int tileRow = (enemy4.currentFrame % 2) + 2; // 2 or 3
+        int tileCol = 2;                          // Constant column 2
         shadowOAM[enemy4.oamIndex].attr0 = ATTR0_Y(enemy4.y) | ATTR0_SQUARE | ATTR0_REGULAR;
         shadowOAM[enemy4.oamIndex].attr1 = ATTR1_X(enemy4.x) | ATTR1_TINY;
-        shadowOAM[enemy4.oamIndex].attr2 = ATTR2_TILEID(14, 0) | ATTR2_PALROW(0);
+        if (enemy4.direction == RIGHT) {
+            shadowOAM[enemy4.oamIndex].attr1 |= ATTR1_HFLIP;
+        }
+        shadowOAM[enemy4.oamIndex].attr2 = ATTR2_TILEID(tileRow, tileCol) | ATTR2_PALROW(0);
     } else {
         shadowOAM[enemy4.oamIndex].attr0 = ATTR0_HIDE;
     }
 }
+
+
 
 void drawPlayer() {
     int tileIndex = 0;
@@ -419,19 +446,22 @@ void drawBomb() {
 }
 
 int loseCondition() {
-    if (collision(enemy1.x, enemy1.y, enemy1.width, enemy1.height,
-                  player.x, player.y, player.width, player.height) ||
-        collision(enemy2.x, enemy2.y, enemy2.width, enemy2.height,
-                  player.x, player.y, player.width, player.height) ||
-        collision(enemy3.x, enemy3.y, enemy3.width, enemy3.height,
-                  player.x, player.y, player.width, player.height) ||
-        collision(enemy4.x, enemy4.y, enemy4.width, enemy4.height,
-                  player.x, player.y, player.width, player.height))
-    {
+    if (collision(enemy1.x, enemy1.y, enemy1.width, enemy1.height, player.x, player.y, player.width, player.height) ||
+        collision(enemy2.x, enemy2.y, enemy2.width, enemy2.height, player.x, player.y, player.width, player.height) ||
+        collision(enemy3.x, enemy3.y, enemy3.width, enemy3.height, player.x, player.y, player.width, player.height) ||
+        collision(enemy4.x, enemy4.y, enemy4.width, enemy4.height, player.x, player.y, player.width, player.height)) {
+        
+        lives--;  // Decrease lives when hit
+        if (lives <= 0) {
+            goToLose();  // If lives run out, go to Lose screen
+        } else {
+            initializePlayer();  // Respawn player if lives remain
+        }
         return 1;
     }
     return 0;
 }
+
 
 int winCondition() {
     if (checkCollisionWin(player.x, player.y)) {
@@ -440,56 +470,48 @@ int winCondition() {
     return 0;
 }
 
-// Updated handleExplosion() marks enemies as inactive and hides their sprites.
 void handleExplosion(int bx, int by) {
-    // Define explosion area: center, left, right, up, and down.
     int explosionTiles[5][2] = {
-        {bx, by},
-        {bx - TILE_SIZE, by},
-        {bx + TILE_SIZE, by},
-        {bx, by - TILE_SIZE},
-        {bx, by + TILE_SIZE}
+        {bx, by}, {bx - TILE_SIZE, by}, {bx + TILE_SIZE, by},
+        {bx, by - TILE_SIZE}, {bx, by + TILE_SIZE}
     };
 
     for (int i = 0; i < 5; i++) {
         int ex = explosionTiles[i][0];
         int ey = explosionTiles[i][1];
 
-        // Check collision with enemy1.
         if (enemy1.active && collision(ex, ey, TILE_SIZE, TILE_SIZE, enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
             enemy1.active = 0;
             shadowOAM[enemy1.oamIndex].attr0 = ATTR0_HIDE;
+            score += 100;  // Award points
         }
-        
-        // Check collision with enemy2.
         if (enemy2.active && collision(ex, ey, TILE_SIZE, TILE_SIZE, enemy2.x, enemy2.y, enemy2.width, enemy2.height)) {
             enemy2.active = 0;
             shadowOAM[enemy2.oamIndex].attr0 = ATTR0_HIDE;
+            score += 100;
         }
-        
-        // Check collision with enemy3.
         if (enemy3.active && collision(ex, ey, TILE_SIZE, TILE_SIZE, enemy3.x, enemy3.y, enemy3.width, enemy3.height)) {
             enemy3.active = 0;
             shadowOAM[enemy3.oamIndex].attr0 = ATTR0_HIDE;
+            score += 150;
         }
-        
-        // Check collision with enemy4.
         if (enemy4.active && collision(ex, ey, TILE_SIZE, TILE_SIZE, enemy4.x, enemy4.y, enemy4.width, enemy4.height)) {
             enemy4.active = 0;
             shadowOAM[enemy4.oamIndex].attr0 = ATTR0_HIDE;
+            score += 150;
         }
-        
-        // Check for soft block collision and destroy if necessary.
-        if (checkCollisionDestructableWall(ex, ey)) {
-            destroySoftBlockAt(ex, ey);
-        }
-        
-        // Optionally: Check if the player is hit by the explosion.
         if (collision(ex, ey, TILE_SIZE, TILE_SIZE, player.x, player.y, player.width, player.height)) {
-            // Implement player damage or loss condition.
+            lives--;  // Lose a life if caught in explosion
+            if (lives <= 0) {
+                goToLose();
+            } else {
+                initializePlayer();  // Respawn player
+            }
         }
+        
     }
 }
+
 
 // Hides all sprites in the shadowOAM; must DMA shadowOAM into OAM after calling this function.
 void hideSprites() {

@@ -2,7 +2,7 @@
 #define HELPER_H
 
 // --- Collision Map Helpers ---
-int isPassablePixel(int x, int y);
+int isPassablePixel(int x, int y, int game);
 unsigned char colorAt(int x, int y);
 
 // --- Tile-based Collision Functions (for bomb explosion, etc.) ---

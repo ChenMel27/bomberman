@@ -79,7 +79,11 @@ extern const unsigned short spriteTiles[16384];
 extern const unsigned short spritePal[256];
 # 6 "helper.c" 2
 # 1 "gameOne.h" 1
-# 13 "gameOne.h"
+# 11 "gameOne.h"
+extern int score;
+extern int lives;
+
+
 void updateGameOne();
 void drawGameOne();
 # 7 "helper.c" 2
@@ -87,18 +91,119 @@ void drawGameOne();
 # 19 "collisionMap.h"
 extern unsigned short collisionMapBitmap[65536] __attribute__((section(".ewram")));
 # 8 "helper.c" 2
-# 21 "helper.c"
+# 1 "collisionMap2.h" 1
+# 20 "collisionMap2.h"
+extern unsigned short collisionMap2Bitmap[65536] __attribute__((section(".ewram")));
+# 9 "helper.c" 2
+# 1 "sprites.h" 1
+# 9 "sprites.h"
+void initializeEnemies();
+void initializePlayer();
+void updateEnemies();
+void updatePlayer();
+void updateBomb();
+void drawEnemies();
+void drawPlayer();
+int winCondition();
+int loseCondition();
+
+
+typedef struct {
+  u16 attr0;
+  u16 attr1;
+  u16 attr2;
+  u16 fill;
+} OBJ_ATTR;
+
+typedef struct {
+  int x;
+  int y;
+  int timer;
+  int explosionTimer;
+  int active;
+  int oamIndex;
+} BOMB;
+
+
+
+extern OBJ_ATTR shadowOAM[128];
+
+struct attr0 {
+  u16 regular;
+  u16 affine;
+  u16 hide;
+  u16 double_affine;
+  u16 enable_alpha;
+  u16 enable_window;
+  u16 enable_mosaic;
+  u16 fourBpp;
+  u16 eightBpp;
+  u16 square;
+  u16 wide;
+  u16 tall;
+};
+
+struct attr1 {
+  u16 hflip;
+  u16 vflip;
+  u16 tiny;
+  u16 small;
+  u16 medium;
+  u16 large;
+};
+
+struct oam_attrs {
+  struct attr0 attr0;
+  struct attr1 attr1;
+};
+# 112 "sprites.h"
+void hideSprites();
+
+
+typedef struct {
+    int x;
+    int y;
+    int xVel;
+    int yVel;
+    int width;
+    int height;
+    int active;
+    int timeUntilNextFrame;
+    int direction;
+    int isAnimating;
+    int currentFrame;
+    int numFrames;
+    u8 oamIndex;
+} SPRITE;
+# 10 "helper.c" 2
+# 23 "helper.c"
 inline unsigned char colorAt(int x, int y) {
     return ((unsigned char *)collisionMapBitmap)[((y) * (512) + (x))];
 }
 
-
-int isPassablePixel(int x, int y) {
-    if(x < 0 || x >= 512 || y < 0 || y >= 256)
-        return 0;
-    return (colorAt(x, y) != 0 && colorAt(x, y) != 1);
+inline unsigned char colorAt2(int x, int y) {
+    return ((unsigned char *)collisionMap2Bitmap)[((y) * (512) + (x))];
 }
-# 43 "helper.c"
+
+
+int isPassablePixel(int x, int y, int game) {
+    if (game == 1) {
+        if(x < 0 || x >= 512 || y < 0 || y >= 256)
+        return 0;
+        return (colorAt(x, y) != 0 && colorAt(x, y) != 1);
+    } else if (game == 2) {
+        if(x < 0 || x >= 512 || y < 0 || y >= 256)
+        return 0;
+        return (colorAt2(x, y) != 0 && colorAt2(x, y) != 1);
+    }
+}
+# 55 "helper.c"
+extern SPRITE enemy1;
+extern SPRITE enemy2;
+extern SPRITE enemy3;
+extern SPRITE enemy4;
+extern SPRITE player;
+
 unsigned short getTileAtWorld(int worldX, int worldY) {
     int tileX = worldX / 8;
     int tileY = worldY / 8;
@@ -162,4 +267,72 @@ void destroySoftBlockAt(int worldX, int worldY) {
             }
         }
     }
+}
+
+
+void drawText(int tileX, int tileY, char *text) {
+    int index = tileY * 32 + tileX;
+
+    while (*text) {
+        char c = *text;
+        int tileIndex = 0;
+
+
+        if (c >= '0' && c <= '9') {
+            tileIndex = c - '0' + 15;
+        }
+
+        else if (c >= 'A' && c <= 'Z') {
+            tileIndex = c - 'A' + 32;
+        }
+
+        else if (c >= 'a' && c <= 'z') {
+            tileIndex = c - 'a' + 58;
+        }
+
+        else if (c == ':') {
+            tileIndex = 26;
+        }
+        else if (c == '@') {
+            tileIndex = 31;
+        }
+        else if (c == '?') {
+            tileIndex = 30;
+        }
+        else {
+            tileIndex = 0;
+        }
+
+
+        ((SB*) 0x6000000)[28].tilemap[index] = tileIndex | (1 << 12);
+        text++;
+        index++;
+    }
+}
+
+
+void drawNumber(int tileX, int tileY, int num) {
+    char buffer[10];
+    sprintf(buffer, "%d", num);
+    drawText(tileX, tileY, buffer);
+}
+
+int checkPlayerEnemyCollision() {
+    if (enemy1.active && collision(player.x, player.y, player.width, player.height,
+                                   enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
+        return 1;
+    }
+    if (enemy2.active && collision(player.x, player.y, player.width, player.height,
+                                   enemy2.x, enemy2.y, enemy2.width, enemy2.height)) {
+        return 1;
+    }
+    if (enemy3.active && collision(player.x, player.y, player.width, player.height,
+                                   enemy3.x, enemy3.y, enemy3.width, enemy3.height)) {
+        return 1;
+    }
+    if (enemy4.active && collision(player.x, player.y, player.width, player.height,
+                                   enemy4.x, enemy4.y, enemy4.width, enemy4.height)) {
+        return 1;
+    }
+    return 0;
 }

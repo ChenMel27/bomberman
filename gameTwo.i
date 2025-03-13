@@ -1,7 +1,7 @@
-# 1 "main.c"
+# 1 "gameTwo.c"
 # 1 "<built-in>"
 # 1 "<command-line>"
-# 1 "main.c"
+# 1 "gameTwo.c"
 # 1 "gba.h" 1
 
 
@@ -41,7 +41,7 @@ typedef volatile struct {
 } DMAChannel;
 # 103 "gba.h"
 void DMANow(int channel, volatile void* src, volatile void* dest, unsigned int ctrl);
-# 2 "main.c" 2
+# 2 "gameTwo.c" 2
 # 1 "mode0.h" 1
 # 32 "mode0.h"
 typedef struct {
@@ -53,7 +53,7 @@ typedef struct {
 typedef struct {
  u16 tilemap[1024];
 } SB;
-# 3 "main.c" 2
+# 3 "gameTwo.c" 2
 # 1 "sprites.h" 1
 # 9 "sprites.h"
 void initializeEnemies();
@@ -134,7 +134,7 @@ typedef struct {
     int numFrames;
     u8 oamIndex;
 } SPRITE;
-# 4 "main.c" 2
+# 4 "gameTwo.c" 2
 # 1 "print.h" 1
 # 25 "print.h"
 # 1 "/opt/devkitpro/devkitARM/lib/gcc/arm-none-eabi/9.1.0/include/stdint.h" 1 3 4
@@ -341,7 +341,7 @@ void mgba_printf_level(int level, const char* ptr, ...);
 void mgba_printf(const char* string, ...);
 void mgba_break(void);
 void mgba_close(void);
-# 5 "main.c" 2
+# 5 "gameTwo.c" 2
 # 1 "bg.h" 1
 
 
@@ -351,21 +351,21 @@ void mgba_close(void);
 
 
 extern unsigned short bgMap[2048];
-# 6 "main.c" 2
+# 6 "gameTwo.c" 2
 # 1 "tileset.h" 1
 # 21 "tileset.h"
 extern const unsigned short tilesetTiles[512];
 
 
 extern const unsigned short tilesetPal[256];
-# 7 "main.c" 2
+# 7 "gameTwo.c" 2
 # 1 "sprite.h" 1
 # 21 "sprite.h"
 extern const unsigned short spriteTiles[16384];
 
 
 extern const unsigned short spritePal[256];
-# 8 "main.c" 2
+# 8 "gameTwo.c" 2
 # 1 "gameOne.h" 1
 # 11 "gameOne.h"
 extern int score;
@@ -374,13 +374,13 @@ extern int lives;
 
 void updateGameOne();
 void drawGameOne();
-# 9 "main.c" 2
+# 9 "gameTwo.c" 2
 # 1 "helper.h" 1
 
 
 
 
-int isPassablePixel(int x, int y, int game);
+int isPassablePixel(int x, int y);
 unsigned char colorAt(int x, int y);
 
 
@@ -390,207 +390,31 @@ int checkCollisionDestructableWall(int worldX, int worldY);
 int checkCollisionSoftBlock(int worldX, int worldY);
 int checkCollisionWin(int worldX, int worldY);
 void destroySoftBlockAt(int worldX, int worldY);
-# 10 "main.c" 2
-# 1 "collisionMap.h" 1
-# 19 "collisionMap.h"
-extern unsigned short collisionMapBitmap[65536] __attribute__((section(".ewram")));
-# 11 "main.c" 2
-# 1 "bg2.h" 1
+# 10 "gameTwo.c" 2
+
+void updateGameTwo() {
+    updatePlayer();
+    updateEnemies();
+    updateBomb();
 
 
-
-
-
-
-
-extern const unsigned short bg2Map[2048];
-# 12 "main.c" 2
-# 1 "font.h" 1
-# 21 "font.h"
-extern const unsigned short fontTiles[1568];
-
-
-extern const unsigned short fontPal[256];
-# 13 "main.c" 2
-
-OBJ_ATTR shadowOAM[128];
-
-void initialize();
-void updateGameOne();
-void drawGameOne();
-
-
-void goToStart();
-void start();
-void goToGameOne();
-void gameOne();
-void goToGameTwo();
-void gameTwo();
-void goToPause();
-void pause();
-void goToLose();
-void lose();
-void goToWin();
-void win();
-
-
-enum {START, GAMEONE, GAMETWO, PAUSE, WIN, LOSE};
-int state;
-
-int score = 0;
-int lives = 3;
-
-unsigned short oldButtons;
-unsigned short buttons;
-SPRITE player;
-extern int round;
-
-int main() {
-    initialize();
-
-    while (1) {
-        oldButtons = buttons;
-        buttons = (*(volatile unsigned short *)0x04000130);
-
-        switch(state) {
-            case START:
-                start();
-                break;
-            case GAMEONE:
-                gameOne();
-                break;
-            case GAMETWO:
-                gameTwo();
-                break;
-            case WIN:
-                win();
-                break;
-            case PAUSE:
-                pause();
-                break;
-            case LOSE:
-                lose();
-                break;
+    if (checkPlayerEnemyCollision()) {
+        lives--;
+        if (lives <= 0) {
+            goToLose();
+        } else {
+            initializePlayer();
+            initializeEnemies(0);
         }
-        DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128 * 4);
     }
 }
 
-void initialize() {
-    mgba_open();
-    (*(volatile unsigned short *)0x4000000) = ((0) & 7) | (1 << (8 + (1 % 4))) | (1 << 12) | (1 << (8 + (0 % 4)));
-
-    (*(volatile unsigned short*) 0x400000A) = ((20) << 8) | ((0) << 2);
-    (*(volatile unsigned short*) 0x4000008) = ((28) << 8) | ((1) << 2) | (0 << 14);
-
-
-    DMANow(3, bgMap, &((SB*) 0x6000000)[20], (4096) / 2);
-    DMANow(3, tilesetPal, ((unsigned short *)0x5000000), 512 / 2);
-    DMANow(3, tilesetTiles, &((CB*) 0x6000000)[0], 1024 / 2);
-
-
-    DMANow(3, fontTiles, &((CB*) 0x6000000)[1], 3136 / 2);
-    DMANow(3, fontPal, ((unsigned short *)0x5000000) + 16, 512 / 2);
-
-
-    DMANow(3, spriteTiles, &((CB*) 0x6000000)[4], 32768 / 2);
-    DMANow(3, spritePal, ((u16 *)0x5000200), 256);
-
-    initializePlayer();
-    initializeEnemies(1);
-    hideSprites();
-    waitForVBlank();
-    DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128 * 4);
-
-    goToStart();
-}
-
-void goToStart() {
-    state = START;
-}
-
-void start() {
-    waitForVBlank();
-
-    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
-        goToGameOne();
-    }
-}
-
-void goToGameOne() {
-    state = GAMEONE;
-    DMANow(3, bgMap, &((SB*) 0x6000000)[20], (4096) / 2);
-    initializeEnemies(1);
-    initializePlayer();
-    lives = 3;
-    round = 1;
-}
-
-
-void gameOne() {
-    updateGameOne();
-    drawGameOne();
-    waitForVBlank();
-
-    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
-        goToPause();
-    }
-}
-
-void goToGameTwo() {
-    DMANow(3, bg2Map, &((SB*) 0x6000000)[20], (4096) / 2);
-
-    score = 0;
-    lives = 3;
-    round = 2;
-    initializeEnemies(1);
-    initializePlayer();
-    state = GAMETWO;
-}
-
-
-
-void gameTwo() {
-    updateGameTwo();
-    drawGameTwo();
-    waitForVBlank();
-
-    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
-        goToPause();
-    }
-}
-
-void goToPause() {
-    state = PAUSE;
-}
-
-void pause() {
-    waitForVBlank();
-    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
-        goToGameOne();
-    } else if ((!(~(oldButtons) & ((1<<2))) && (~(buttons) & ((1<<2))))) {
-        goToStart();
-    }
-}
-
-void goToLose() {
-    state = LOSE;
-}
-
-void lose() {
-    waitForVBlank();
-    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
-        goToStart();
-    }
-}
-
-void goToWin() {
-    state = WIN;
-}
-
-void win() {
-    waitForVBlank();
-    if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
-        goToStart();
-    }
+void drawGameTwo() {
+    drawEnemies();
+    drawPlayer();
+    drawBomb();
+    drawText(10, 10, "Score:");
+    drawNumber(60, 10, score);
+    drawText(10, 20, "Lives:");
+    drawNumber(60, 20, lives);
 }

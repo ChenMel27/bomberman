@@ -5,6 +5,8 @@
 #include "sprite.h"
 #include "gameOne.h"
 #include "collisionMap.h"
+#include "collisionMap2.h"
+#include "sprites.h"
 
 //-------------------------------
 // New Collision Map Helpers
@@ -22,11 +24,21 @@ inline unsigned char colorAt(int x, int y) {
     return ((unsigned char *)collisionMapBitmap)[OFFSET(x, y, COLLISION_MAP_WIDTH)];
 }
 
+inline unsigned char colorAt2(int x, int y) {
+    return ((unsigned char *)collisionMap2Bitmap)[OFFSET(x, y, COLLISION_MAP_WIDTH)];
+}
+
 // Returns nonzero if the pixel at (x, y) is passable (i.e. not blocked).
-int isPassablePixel(int x, int y) {
-    if(x < 0 || x >= COLLISION_MAP_WIDTH || y < 0 || y >= COLLISION_MAP_HEIGHT)
+int isPassablePixel(int x, int y, int game) {
+    if (game == 1) {
+        if(x < 0 || x >= COLLISION_MAP_WIDTH || y < 0 || y >= COLLISION_MAP_HEIGHT)
         return 0;  // Out-of-bounds is not passable.
-    return (colorAt(x, y) != 0 && colorAt(x, y) != 1);
+        return (colorAt(x, y) != 0 && colorAt(x, y) != 1);
+    } else if (game == 2) {
+        if(x < 0 || x >= COLLISION_MAP_WIDTH || y < 0 || y >= COLLISION_MAP_HEIGHT)
+        return 0;  // Out-of-bounds is not passable.
+        return (colorAt2(x, y) != 0 && colorAt2(x, y) != 1);
+    }
 }
 
 
@@ -39,6 +51,12 @@ int isPassablePixel(int x, int y) {
 #define MAP_HEIGHT  32
 #define SPRITE_WIDTH  8
 #define SPRITE_HEIGHT 8
+
+extern SPRITE enemy1;
+extern SPRITE enemy2;
+extern SPRITE enemy3;
+extern SPRITE enemy4;
+extern SPRITE player;
 
 unsigned short getTileAtWorld(int worldX, int worldY) {
     int tileX = worldX / TILE_SIZE;
@@ -103,4 +121,72 @@ void destroySoftBlockAt(int worldX, int worldY) {
             }
         }
     }
+}
+
+
+void drawText(int tileX, int tileY, char *text) {
+    int index = tileY * 32 + tileX;  // Convert (x,y) to tilemap index
+
+    while (*text) {
+        char c = *text;
+        int tileIndex = 0;
+
+        // Numbers (0-9)
+        if (c >= '0' && c <= '9') {
+            tileIndex = c - '0' + 15;  
+        }
+        // Uppercase letters (A-Z)
+        else if (c >= 'A' && c <= 'Z') {
+            tileIndex = c - 'A' + 32;
+        }
+        // Lowercase letters (a-z)
+        else if (c >= 'a' && c <= 'z') {
+            tileIndex = c - 'a' + 58;
+        }
+        // Special characters
+        else if (c == ':') {
+            tileIndex = 26; 
+        }
+        else if (c == '@') {
+            tileIndex = 31;
+        }
+        else if (c == '?') {
+            tileIndex = 30;
+        }
+        else {
+            tileIndex = 0;  // Default to a blank tile
+        }
+
+        // Ensure the font uses **palette 0**
+        SCREENBLOCK[28].tilemap[index] = tileIndex | (1 << 12);  // Palette Bank 0
+        text++;
+        index++;
+    }
+}
+
+
+void drawNumber(int tileX, int tileY, int num) {
+    char buffer[10];  
+    sprintf(buffer, "%d", num);  // Convert number to string
+    drawText(tileX, tileY, buffer);
+}
+
+int checkPlayerEnemyCollision() {
+    if (enemy1.active && collision(player.x, player.y, player.width, player.height, 
+                                   enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
+        return 1;
+    }
+    if (enemy2.active && collision(player.x, player.y, player.width, player.height, 
+                                   enemy2.x, enemy2.y, enemy2.width, enemy2.height)) {
+        return 1;
+    }
+    if (enemy3.active && collision(player.x, player.y, player.width, player.height, 
+                                   enemy3.x, enemy3.y, enemy3.width, enemy3.height)) {
+        return 1;
+    }
+    if (enemy4.active && collision(player.x, player.y, player.width, player.height, 
+                                   enemy4.x, enemy4.y, enemy4.width, enemy4.height)) {
+        return 1;
+    }
+    return 0;
 }

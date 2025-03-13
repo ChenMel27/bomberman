@@ -367,12 +367,21 @@ extern const unsigned short spriteTiles[16384];
 extern const unsigned short spritePal[256];
 # 8 "gameOne.c" 2
 # 1 "gameOne.h" 1
-# 13 "gameOne.h"
+# 11 "gameOne.h"
+extern int score;
+extern int lives;
+
+
 void updateGameOne();
 void drawGameOne();
 # 9 "gameOne.c" 2
 # 1 "helper.h" 1
 
+
+
+
+int isPassablePixel(int x, int y);
+unsigned char colorAt(int x, int y);
 
 
 unsigned short getTileAtWorld(int worldX, int worldY);
@@ -387,12 +396,44 @@ void updateGameOne() {
     updatePlayer();
     updateEnemies();
     updateBomb();
+
+    if (checkPlayerEnemyCollision()) {
+        lives--;
+        if (lives <= 0) {
+            goToGameTwo();
+        } else {
+            initializePlayer();
+            initializeEnemies(0);
+        }
+    }
 }
+
 
 void drawGameOne() {
     drawEnemies();
     drawPlayer();
     drawBomb();
+
+    drawText(2, 2, "SCORE:");
+    drawNumber(9, 2, score);
+
+    drawText(2, 4, "LIVES:");
+    drawNumber(9, 4, lives);
 }
 
-extern int lives;
+
+void drawSpriteNumber(int x, int y, int num) {
+    char buffer[10];
+    sprintf(buffer, "%d", num);
+
+    int i = 0;
+    while (buffer[i] != '\0') {
+        int tileIndex = buffer[i] - '0';
+
+        shadowOAM[100 + i].attr0 = ((y) & 0xFF) | (0<<14);
+        shadowOAM[100 + i].attr1 = ((x + (i * 8)) & 0x1FF);
+        shadowOAM[100 + i].attr2 = ((((0) * (32) + (tileIndex))) & 0x3FF) | (((0) & 0xF) <<12);
+
+        i++;
+    }
+}

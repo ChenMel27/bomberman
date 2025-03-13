@@ -8,6 +8,8 @@
 #include "gameOne.h"
 #include "helper.h"
 #include "collisionMap.h"
+#include "bg2.h"
+#include "font.h"
 
 OBJ_ATTR shadowOAM[128];
 
@@ -33,11 +35,13 @@ void win();
 enum {START, GAMEONE, GAMETWO, PAUSE, WIN, LOSE};
 int state;
 
-int lives;
+int score = 0;
+int lives = 3;
 
 unsigned short oldButtons;
 unsigned short buttons;
 SPRITE player;
+extern int round;
 
 int main() {
     initialize();
@@ -72,17 +76,26 @@ int main() {
 
 void initialize() {
     mgba_open();
-    REG_DISPCTL = MODE(0) | BG_ENABLE(1) | SPRITE_ENABLE;
-    REG_BG1CNT = BG_SCREENBLOCK(20) | BG_CHARBLOCK(0);
+    REG_DISPCTL = MODE(0) | BG_ENABLE(1) | SPRITE_ENABLE | BG_ENABLE(0);
 
+    REG_BG1CNT = BG_SCREENBLOCK(20) | BG_CHARBLOCK(0);
+    REG_BG0CNT = BG_SCREENBLOCK(28) | BG_CHARBLOCK(1) | BG_SIZE_SMALL;  // Use BG0 for text
+
+    // Load backgrounds
     DMANow(3, bgMap, &SCREENBLOCK[20], bgLen / 2);
     DMANow(3, tilesetPal, BG_PALETTE, tilesetPalLen / 2);
     DMANow(3, tilesetTiles, &CHARBLOCK[0], tilesetTilesLen / 2);
+
+    // Load font tiles into CHARBLOCK 1
+    DMANow(3, fontTiles, &CHARBLOCK[1], fontTilesLen / 2);
+    DMANow(3, fontPal, BG_PALETTE + 16, fontPalLen / 2);  // Use a different palette bank
+
+    // Load sprites
     DMANow(3, spriteTiles, &CHARBLOCK[4], spriteTilesLen / 2);
     DMANow(3, spritePal, SPRITE_PAL, 256);
 
     initializePlayer();
-    initializeEnemies();
+    initializeEnemies(1);
     hideSprites();
     waitForVBlank();
     DMANow(3, shadowOAM, OAM, 128 * 4);
@@ -104,7 +117,13 @@ void start() {
 
 void goToGameOne() {
     state = GAMEONE;
+    DMANow(3, bgMap, &SCREENBLOCK[20], bgLen / 2);
+    initializeEnemies(1);
+    initializePlayer();
+    lives = 3;  // Reset lives at start of level
+    round = 1;
 }
+
 
 void gameOne() {
     updateGameOne();
@@ -117,10 +136,23 @@ void gameOne() {
 }
 
 void goToGameTwo() {
+    DMANow(3, bg2Map, &SCREENBLOCK[20], bg2Len / 2);
+
+    score = 0;  // Reset score
+    lives = 3;  // Reset lives
+    round = 2;
+    initializeEnemies(1);  // Respawn enemies
+    initializePlayer();  // Reset player position
     state = GAMETWO;
 }
 
+
+
 void gameTwo() {
+    updateGameTwo();
+    drawGameTwo();
+    waitForVBlank();
+
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToPause();
     }
@@ -159,8 +191,4 @@ void win() {
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();
     }
-}
-
-inline unsigned char colorAt(int x, int y) {
-    return ((unsigned char *)collisionMapBitmap)[(y) * 240 + (x)];
 }

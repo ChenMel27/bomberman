@@ -12,7 +12,7 @@ extern int score;
 extern int lives;
 
 // Function prototypes.
-void updateGameOne();
-void drawGameOne();
+void updateGameTwo();
+void drawGameTwo();
 
 #endif

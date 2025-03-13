@@ -54,7 +54,7 @@ spritePal:
 	.short	363
 	.short	495
 	.short	627
-	.short	799
+	.short	759
 	.short	891
 	.short	1023
 	.short	4096
@@ -145,7 +145,7 @@ spritePal:
 	.short	12319
 	.short	8223
 	.short	4127
-	.short	415
+	.short	31
 	.short	0
 	.short	0
 	.short	0
@@ -841,6 +841,17 @@ spriteTiles:
 	.short	0
 	.short	0
 	.short	0
+	.short	4
+	.short	17408
+	.short	4
+	.short	19968
+	.short	4
+	.short	18112
+	.short	4
+	.short	-13664
+	.short	12
+	.short	-21856
+	.short	12
 	.short	0
 	.short	0
 	.short	0
@@ -1291,79 +1302,68 @@ spriteTiles:
 	.short	0
 	.short	0
 	.short	0
+	.short	17408
+	.short	1092
+	.short	-7168
+	.short	1092
+	.short	17408
+	.short	1092
+	.short	17472
+	.short	1092
+	.short	16448
+	.short	1027
+	.short	16452
+	.short	1075
+	.short	16388
+	.short	16432
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
+	.short	17408
+	.short	1092
+	.short	-7168
+	.short	1092
+	.short	17408
+	.short	1092
+	.short	17472
+	.short	1092
+	.short	832
+	.short	1092
+	.short	17220
+	.short	1028
+	.short	17204
+	.short	16384
+	.short	-17664
+	.short	187
+	.short	-17920
+	.short	187
+	.short	31488
+	.short	183
+	.short	27392
+	.short	182
+	.short	27392
+	.short	182
+	.short	27392
+	.short	182
+	.short	2816
+	.short	176
+	.short	2992
+	.short	187
+	.short	-17664
+	.short	187
+	.short	-17920
+	.short	187
+	.short	31488
+	.short	183
+	.short	27392
+	.short	182
+	.short	27392
+	.short	187
+	.short	27392
+	.short	3003
+	.short	-17664
+	.short	2827
+	.short	-17488
+	.short	-17664
 	.short	0
 	.short	0
 	.short	0
