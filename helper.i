@@ -176,7 +176,29 @@ typedef struct {
     u8 oamIndex;
 } SPRITE;
 # 10 "helper.c" 2
-# 23 "helper.c"
+# 1 "bg2.h" 1
+
+
+
+
+
+
+
+extern unsigned short bg2Map[2048];
+# 11 "helper.c" 2
+
+
+
+
+
+
+
+extern int round;
+
+
+
+
+
 inline unsigned char colorAt(int x, int y) {
     return ((unsigned char *)collisionMapBitmap)[((y) * (512) + (x))];
 }
@@ -197,7 +219,7 @@ int isPassablePixel(int x, int y, int game) {
         return (colorAt2(x, y) != 0 && colorAt2(x, y) != 1);
     }
 }
-# 55 "helper.c"
+# 56 "helper.c"
 extern SPRITE enemy1;
 extern SPRITE enemy2;
 extern SPRITE enemy3;
@@ -211,8 +233,13 @@ unsigned short getTileAtWorld(int worldX, int worldY) {
         return 0xFFFF;
     }
     int tileIndex = tileY * 32 + tileX;
-    return bgMap[tileIndex];
+    if (round == 1) {
+        return bgMap[tileIndex];
+    } else {
+        return bg2Map[tileIndex];
+    }
 }
+
 
 int checkCollisionWorld(int worldX, int worldY) {
     return (getTileAtWorld(worldX, worldY) == 0x0001) ||
@@ -249,21 +276,32 @@ void destroySoftBlockAt(int worldX, int worldY) {
         return;
     }
     int tileIndex = tileY * 32 + tileX;
-    if (bgMap[tileIndex] == 0x0003) {
-
-        bgMap[tileIndex] = 0x0000;
-        DMANow(3, bgMap, &((SB*) 0x6000000)[20], (4096) / 2);
-
-
-
-        int startX = tileX * 8;
-        int startY = tileY * 8;
-        for (int y = 0; y < 8; y++) {
-            for (int x = 0; x < 8; x++) {
-                int pixelX = startX + x;
-                int pixelY = startY + y;
-
-                ((unsigned char *)collisionMapBitmap)[((pixelY) * (512) + (pixelX))] = 3;
+    if (round == 1) {
+        if (bgMap[tileIndex] == 0x0003) {
+            bgMap[tileIndex] = 0x0000;
+            DMANow(3, bgMap, &((SB*) 0x6000000)[20], (4096) / 2);
+            int startX = tileX * 8;
+            int startY = tileY * 8;
+            for (int y = 0; y < 8; y++) {
+                for (int x = 0; x < 8; x++) {
+                    int pixelX = startX + x;
+                    int pixelY = startY + y;
+                    ((unsigned char *)collisionMapBitmap)[((pixelY) * (512) + (pixelX))] = 3;
+                }
+            }
+        }
+    } else {
+        if (bg2Map[tileIndex] == 0x0003) {
+            bg2Map[tileIndex] = 0x0000;
+            DMANow(3, bg2Map, &((SB*) 0x6000000)[20], (4096) / 2);
+            int startX = tileX * 8;
+            int startY = tileY * 8;
+            for (int y = 0; y < 8; y++) {
+                for (int x = 0; x < 8; x++) {
+                    int pixelX = startX + x;
+                    int pixelY = startY + y;
+                    ((unsigned char *)collisionMap2Bitmap)[((pixelY) * (512) + (pixelX))] = 3;
+                }
             }
         }
     }

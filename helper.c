@@ -7,6 +7,7 @@
 #include "collisionMap.h"
 #include "collisionMap2.h"
 #include "sprites.h"
+#include "bg2.h"
 
 //-------------------------------
 // New Collision Map Helpers
@@ -14,7 +15,7 @@
 
 #define COLLISION_MAP_WIDTH  512
 #define COLLISION_MAP_HEIGHT 256
-
+extern int round;
 
 // Macro to compute an offset in a linear array.
 #define OFFSET(x, y, width) ((y) * (width) + (x))
@@ -65,8 +66,13 @@ unsigned short getTileAtWorld(int worldX, int worldY) {
         return 0xFFFF;
     }
     int tileIndex = tileY * MAP_WIDTH + tileX;
-    return bgMap[tileIndex];
+    if (round == 1) {
+        return bgMap[tileIndex];
+    } else {  // round == 2
+        return bg2Map[tileIndex];
+    }
 }
+
 
 int checkCollisionWorld(int worldX, int worldY) {
     return (getTileAtWorld(worldX, worldY) == 0x0001) ||
@@ -103,21 +109,32 @@ void destroySoftBlockAt(int worldX, int worldY) {
         return;
     }
     int tileIndex = tileY * MAP_WIDTH + tileX;
-    if (bgMap[tileIndex] == 0x0003) {
-        // Update the background tile to show the block is destroyed.
-        bgMap[tileIndex] = 0x0000;
-        DMANow(3, bgMap, &SCREENBLOCK[20], bgLen / 2);
-
-        // Update the collision map to mark this tile's pixels as passable.
-        // Compute the starting pixel coordinates for this tile.
-        int startX = tileX * TILE_SIZE;
-        int startY = tileY * TILE_SIZE;
-        for (int y = 0; y < TILE_SIZE; y++) {
-            for (int x = 0; x < TILE_SIZE; x++) {
-                int pixelX = startX + x;
-                int pixelY = startY + y;
-                // Set the collision map pixel to 2 (or any non-0, non-1 value)
-                ((unsigned char *)collisionMapBitmap)[OFFSET(pixelX, pixelY, COLLISION_MAP_WIDTH)] = 3;
+    if (round == 1) {
+        if (bgMap[tileIndex] == 0x0003) {
+            bgMap[tileIndex] = 0x0000;
+            DMANow(3, bgMap, &SCREENBLOCK[20], bgLen / 2);
+            int startX = tileX * TILE_SIZE;
+            int startY = tileY * TILE_SIZE;
+            for (int y = 0; y < TILE_SIZE; y++) {
+                for (int x = 0; x < TILE_SIZE; x++) {
+                    int pixelX = startX + x;
+                    int pixelY = startY + y;
+                    ((unsigned char *)collisionMapBitmap)[OFFSET(pixelX, pixelY, COLLISION_MAP_WIDTH)] = 3;
+                }
+            }
+        }
+    } else {  // round == 2
+        if (bg2Map[tileIndex] == 0x0003) {
+            bg2Map[tileIndex] = 0x0000;
+            DMANow(3, bg2Map, &SCREENBLOCK[20], bg2Len / 2);
+            int startX = tileX * TILE_SIZE;
+            int startY = tileY * TILE_SIZE;
+            for (int y = 0; y < TILE_SIZE; y++) {
+                for (int x = 0; x < TILE_SIZE; x++) {
+                    int pixelX = startX + x;
+                    int pixelY = startY + y;
+                    ((unsigned char *)collisionMap2Bitmap)[OFFSET(pixelX, pixelY, COLLISION_MAP_WIDTH)] = 3;
+                }
             }
         }
     }

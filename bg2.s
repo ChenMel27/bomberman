@@ -11,7 +11,7 @@
 	.file	"bg2.c"
 	.text
 	.global	bg2Map
-	.section	.rodata
+	.data
 	.align	2
 	.type	bg2Map, %object
 	.size	bg2Map, 4096
