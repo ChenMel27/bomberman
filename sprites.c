@@ -16,6 +16,7 @@
 #define COLLISION_MAP_HEIGHT 256
 #define EXPLOSION_TILE_ROW 2
 #define EXPLOSION_TILE_COL 4
+int playerImmuneToBombs = 0;  // Default is OFF (0), player can be harmed
 
 // Global death timers for enemies (initially 0 means enemy is not dying)
 int enemy1DeathTimer = 0;
@@ -174,6 +175,12 @@ void updatePlayer() {
         bomb.timer = 60; // 60 frames before explosion.
         bomb.active = 1;
     }
+
+    // Check if player collects a power-up (example collision with power-up tile)
+    if (BUTTON_PRESSED(BUTTON_LSHOULDER)) {
+        playerImmuneToBombs = 1;  // Activate power-up
+    }
+
 }
 
 
@@ -520,9 +527,10 @@ void handleExplosion(int bx, int by) {
         int ex = explosionTiles[i][0];
         int ey = explosionTiles[i][1];
 
+        // Enemy hit by explosion
         if (enemy1.active && enemy1DeathTimer == 0 &&
             collision(ex, ey, TILE_SIZE, TILE_SIZE, enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
-            enemy1DeathTimer = 50;  // 30 frames death animation
+            enemy1DeathTimer = 50;
             score += 100;
         }
         if (enemy2.active && enemy2DeathTimer == 0 &&
@@ -540,8 +548,10 @@ void handleExplosion(int bx, int by) {
             enemy4DeathTimer = 50;
             score += 150;
         }
-        // If player is caught in explosion:
-        if (collision(ex, ey, TILE_SIZE, TILE_SIZE, player.x, player.y, player.width, player.height)) {
+
+        // Player hit by explosion, but only if they are **not** immune
+        if (!playerImmuneToBombs && 
+            collision(ex, ey, TILE_SIZE, TILE_SIZE, player.x, player.y, player.width, player.height)) {
             lives--;
             if (lives <= 0) {
                 goToLose();
@@ -551,6 +561,7 @@ void handleExplosion(int bx, int by) {
         }
     }
 }
+
 
 
 

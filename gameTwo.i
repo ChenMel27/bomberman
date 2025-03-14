@@ -55,7 +55,15 @@ typedef struct {
 } SB;
 # 3 "gameTwo.c" 2
 # 1 "sprites.h" 1
-# 9 "sprites.h"
+
+
+
+
+
+
+
+extern int playerImmuneToBombs;
+
 void initializeEnemies();
 void initializePlayer();
 void updateEnemies();
@@ -115,7 +123,7 @@ struct oam_attrs {
   struct attr0 attr0;
   struct attr1 attr1;
 };
-# 112 "sprites.h"
+# 113 "sprites.h"
 void hideSprites();
 
 
@@ -417,8 +425,12 @@ void drawGameTwo() {
     drawEnemies();
     drawPlayer();
     drawBomb();
-    drawText(10, 10, "Score:");
-    drawNumber(60, 10, score);
-    drawText(10, 20, "Lives:");
-    drawNumber(60, 20, lives);
+
+    drawText(2, 2, "SCORE:");
+    drawText(17, 2, "   ");
+    drawNumber(9, 2, score);
+
+    drawText(2, 4, "LIVES:");
+    drawText(17, 4, "   ");
+    drawNumber(9, 4, lives);
 }

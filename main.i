@@ -55,7 +55,15 @@ typedef struct {
 } SB;
 # 3 "main.c" 2
 # 1 "sprites.h" 1
-# 9 "sprites.h"
+
+
+
+
+
+
+
+extern int playerImmuneToBombs;
+
 void initializeEnemies();
 void initializePlayer();
 void updateEnemies();
@@ -115,7 +123,7 @@ struct oam_attrs {
   struct attr0 attr0;
   struct attr1 attr1;
 };
-# 112 "sprites.h"
+# 113 "sprites.h"
 void hideSprites();
 
 
@@ -412,6 +420,36 @@ extern const unsigned short fontTiles[1568];
 
 extern const unsigned short fontPal[256];
 # 13 "main.c" 2
+# 1 "loser.h" 1
+
+
+
+
+
+
+
+extern const unsigned short loserMap[2048];
+# 14 "main.c" 2
+# 1 "winner.h" 1
+
+
+
+
+
+
+
+extern const unsigned short winnerMap[2048];
+# 15 "main.c" 2
+# 1 "start.h" 1
+
+
+
+
+
+
+
+extern const unsigned short startMap[2048];
+# 16 "main.c" 2
 
 OBJ_ATTR shadowOAM[128];
 
@@ -542,6 +580,7 @@ void goToGameTwo() {
 
     score = 0;
     lives = 3;
+    playerImmuneToBombs = 0;
     round = 2;
     initializeEnemies(1);
     initializePlayer();
@@ -550,8 +589,12 @@ void goToGameTwo() {
 
 
 
+
 void gameTwo() {
     updateGameTwo();
+
+        drawText(2, 2, "          ");
+        drawText(2, 4, "          ");
     drawGameTwo();
     waitForVBlank();
 
@@ -578,19 +621,44 @@ void goToLose() {
 }
 
 void lose() {
+
+    DMANow(3, loserMap, &((SB*) 0x6000000)[20], (4096) / 2);
+
+
+    hideSprites();
+
+
+    drawText(2, 2, "          ");
+    drawText(2, 4, "          ");
+
     waitForVBlank();
+    DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128 * 4);
+
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         goToStart();
     }
 }
+
 
 void goToWin() {
     state = WIN;
 }
 
 void win() {
+
+    DMANow(3, winnerMap, &((SB*) 0x6000000)[20], (4096) / 2);
+
+
+    hideSprites();
+
+
+    drawText(2, 2, "          ");
+    drawText(2, 4, "          ");
+
     waitForVBlank();
+    DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128 * 4);
+
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
-        goToStart();
+            goToStart();
     }
 }

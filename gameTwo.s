@@ -85,10 +85,13 @@ updateGameTwo:
 	.section	.rodata.str1.4,"aMS",%progbits,1
 	.align	2
 .LC0:
-	.ascii	"Score:\000"
+	.ascii	"SCORE:\000"
 	.align	2
 .LC1:
-	.ascii	"Lives:\000"
+	.ascii	"   \000"
+	.align	2
+.LC2:
+	.ascii	"LIVES:\000"
 	.text
 	.align	2
 	.global	drawGameTwo
@@ -110,30 +113,41 @@ drawGameTwo:
 	ldr	r3, .L19+8
 	mov	lr, pc
 	bx	r3
-	mov	r1, #10
-	ldr	r5, .L19+12
+	mov	r1, #2
+	ldr	r6, .L19+12
+	ldr	r4, .L19+16
 	mov	r0, r1
-	ldr	r2, .L19+16
-	mov	lr, pc
-	bx	r5
-	ldr	r3, .L19+20
-	ldr	r4, .L19+24
-	ldr	r2, [r3]
-	mov	r1, #10
-	mov	r0, #60
+	ldr	r2, .L19+20
 	mov	lr, pc
 	bx	r4
-	mov	r1, #20
-	ldr	r2, .L19+28
-	mov	r0, #10
-	mov	lr, pc
-	bx	r5
-	ldr	r3, .L19+32
-	mov	r1, #20
-	mov	r0, #60
-	ldr	r2, [r3]
+	mov	r2, r6
+	mov	r1, #2
+	mov	r0, #17
 	mov	lr, pc
 	bx	r4
+	ldr	r3, .L19+24
+	ldr	r5, .L19+28
+	ldr	r2, [r3]
+	mov	r1, #2
+	mov	r0, #9
+	mov	lr, pc
+	bx	r5
+	mov	r1, #4
+	ldr	r2, .L19+32
+	mov	r0, #2
+	mov	lr, pc
+	bx	r4
+	mov	r2, r6
+	mov	r1, #4
+	mov	r0, #17
+	mov	lr, pc
+	bx	r4
+	ldr	r3, .L19+36
+	mov	r1, #4
+	mov	r0, #9
+	ldr	r2, [r3]
+	mov	lr, pc
+	bx	r5
 	pop	{r4, r5, r6, lr}
 	bx	lr
 .L20:
@@ -142,11 +156,12 @@ drawGameTwo:
 	.word	drawEnemies
 	.word	drawPlayer
 	.word	drawBomb
+	.word	.LC1
 	.word	drawText
 	.word	.LC0
 	.word	score
 	.word	drawNumber
-	.word	.LC1
+	.word	.LC2
 	.word	lives
 	.size	drawGameTwo, .-drawGameTwo
 	.ident	"GCC: (devkitARM release 53) 9.1.0"

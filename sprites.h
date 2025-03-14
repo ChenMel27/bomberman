@@ -5,6 +5,7 @@
 
 // Sprite Palette
 #define SPRITE_PAL ((u16 *)0x5000200)
+extern int playerImmuneToBombs;  // New global variable for the power-up
 
 void initializeEnemies();
 void initializePlayer();

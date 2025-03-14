@@ -88,6 +88,9 @@ updateGameOne:
 	.ascii	"SCORE:\000"
 	.align	2
 .LC1:
+	.ascii	"   \000"
+	.align	2
+.LC2:
 	.ascii	"LIVES:\000"
 	.text
 	.align	2
@@ -111,29 +114,40 @@ drawGameOne:
 	mov	lr, pc
 	bx	r3
 	mov	r1, #2
-	ldr	r5, .L19+12
+	ldr	r6, .L19+12
+	ldr	r4, .L19+16
 	mov	r0, r1
-	ldr	r2, .L19+16
+	ldr	r2, .L19+20
 	mov	lr, pc
-	bx	r5
-	ldr	r3, .L19+20
-	ldr	r4, .L19+24
-	ldr	r2, [r3]
+	bx	r4
+	mov	r2, r6
 	mov	r1, #2
 	mov	r0, #9
 	mov	lr, pc
 	bx	r4
-	mov	r1, #4
-	ldr	r2, .L19+28
-	mov	r0, #2
+	ldr	r3, .L19+24
+	ldr	r5, .L19+28
+	ldr	r2, [r3]
+	mov	r1, #2
+	mov	r0, #9
 	mov	lr, pc
 	bx	r5
-	ldr	r3, .L19+32
+	mov	r1, #4
+	ldr	r2, .L19+32
+	mov	r0, #2
+	mov	lr, pc
+	bx	r4
+	mov	r2, r6
+	mov	r1, #4
+	mov	r0, #9
+	mov	lr, pc
+	bx	r4
+	ldr	r3, .L19+36
 	mov	r1, #4
 	mov	r0, #9
 	ldr	r2, [r3]
 	mov	lr, pc
-	bx	r4
+	bx	r5
 	pop	{r4, r5, r6, lr}
 	bx	lr
 .L20:
@@ -142,16 +156,17 @@ drawGameOne:
 	.word	drawEnemies
 	.word	drawPlayer
 	.word	drawBomb
+	.word	.LC1
 	.word	drawText
 	.word	.LC0
 	.word	score
 	.word	drawNumber
-	.word	.LC1
+	.word	.LC2
 	.word	lives
 	.size	drawGameOne, .-drawGameOne
 	.section	.rodata.str1.4
 	.align	2
-.LC2:
+.LC3:
 	.ascii	"%d\000"
 	.text
 	.align	2
@@ -205,7 +220,7 @@ drawSpriteNumber:
 	.align	2
 .L27:
 	.word	sprintf
-	.word	.LC2
+	.word	.LC3
 	.word	shadowOAM+800
 	.word	511
 	.word	1023

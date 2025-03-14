@@ -49,6 +49,7 @@ void DMANow(int channel, volatile void* src, volatile void* dest, unsigned int c
 
 
 
+extern int playerImmuneToBombs;
 
 void initializeEnemies();
 void initializePlayer();
@@ -109,7 +110,7 @@ struct oam_attrs {
   struct attr0 attr0;
   struct attr1 attr1;
 };
-# 112 "sprites.h"
+# 113 "sprites.h"
 void hideSprites();
 
 
@@ -1023,9 +1024,18 @@ extern long double strtold (const char *restrict, char **restrict);
 # 336 "/opt/devkitpro/devkitARM/arm-none-eabi/include/stdlib.h" 3
 
 # 12 "sprites.c" 2
-# 21 "sprites.c"
 
-# 21 "sprites.c"
+
+
+
+
+
+
+
+# 19 "sprites.c"
+int playerImmuneToBombs = 0;
+
+
 int enemy1DeathTimer = 0;
 int enemy2DeathTimer = 0;
 int enemy3DeathTimer = 0;
@@ -1067,10 +1077,7 @@ void initializePlayer() {
 
 void initializeEnemies(int fullReset) {
     if (fullReset) {
-        enemy1.active = 1;
-        enemy2.active = 1;
-        enemy3.active = 1;
-        enemy4.active = 1;
+
     }
 
     if (enemy1.active) {
@@ -1182,6 +1189,12 @@ void updatePlayer() {
         bomb.timer = 60;
         bomb.active = 1;
     }
+
+
+    if ((!(~(oldButtons) & ((1<<9))) && (~(buttons) & ((1<<9))))) {
+        playerImmuneToBombs = 1;
+    }
+
 }
 
 
@@ -1528,6 +1541,7 @@ void handleExplosion(int bx, int by) {
         int ex = explosionTiles[i][0];
         int ey = explosionTiles[i][1];
 
+
         if (enemy1.active && enemy1DeathTimer == 0 &&
             collision(ex, ey, 8, 8, enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
             enemy1DeathTimer = 50;
@@ -1549,7 +1563,9 @@ void handleExplosion(int bx, int by) {
             score += 150;
         }
 
-        if (collision(ex, ey, 8, 8, player.x, player.y, player.width, player.height)) {
+
+        if (!playerImmuneToBombs &&
+            collision(ex, ey, 8, 8, player.x, player.y, player.width, player.height)) {
             lives--;
             if (lives <= 0) {
                 goToLose();
@@ -1559,6 +1575,7 @@ void handleExplosion(int bx, int by) {
         }
     }
 }
+
 
 
 

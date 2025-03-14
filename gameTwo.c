@@ -33,8 +33,12 @@ void drawGameTwo() {
     drawEnemies();
     drawPlayer();
     drawBomb();
-    drawText(10, 10, "Score:");
-    drawNumber(60, 10, score);
-    drawText(10, 20, "Lives:");
-    drawNumber(60, 20, lives);
+
+    drawText(2, 2, "SCORE:");
+    drawText(17, 2, "   ");  // Clear space for new score
+    drawNumber(9, 2, score);
+
+    drawText(2, 4, "LIVES:");
+    drawText(17, 4, "   ");  // Clear space for new lives count
+    drawNumber(9, 4, lives);
 }

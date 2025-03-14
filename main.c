@@ -10,6 +10,9 @@
 #include "collisionMap.h"
 #include "bg2.h"
 #include "font.h"
+#include "loser.h"
+#include "winner.h"
+#include "start.h"
 
 OBJ_ATTR shadowOAM[128];
 
@@ -138,18 +141,23 @@ void gameOne() {
 void goToGameTwo() {
     DMANow(3, bg2Map, &SCREENBLOCK[20], bg2Len / 2);
 
-    score = 0;  // Reset score
-    lives = 3;  // Reset lives
+    score = 0;
+    lives = 3;
+    playerImmuneToBombs = 0;  // Reset power-ups when changing levels
     round = 2;
-    initializeEnemies(1);  // Respawn enemies
-    initializePlayer();  // Reset player position
+    initializeEnemies(1);
+    initializePlayer();
     state = GAMETWO;
 }
 
 
 
+
 void gameTwo() {
     updateGameTwo();
+        // Clear any leftover score/lives text before drawing new UI
+        drawText(2, 2, "          ");  // Erase old score from game one
+        drawText(2, 4, "          ");  // Erase old lives from game one
     drawGameTwo();
     waitForVBlank();
 
@@ -176,19 +184,44 @@ void goToLose() {
 }
 
 void lose() {
+    // Load lose screen background
+    DMANow(3, loserMap, &SCREENBLOCK[20], loserLen / 2);
+    
+    // Hide all sprites
+    hideSprites();
+    
+    // Clear Score and Lives text
+    drawText(2, 2, "          ");  // Erase score text
+    drawText(2, 4, "          ");  // Erase lives text
+
     waitForVBlank();
+    DMANow(3, shadowOAM, OAM, 128 * 4); // Update OAM after hiding sprites
+
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();
     }
 }
+
 
 void goToWin() {
     state = WIN;
 }
 
 void win() {
+    // Load lose screen background
+    DMANow(3, winnerMap, &SCREENBLOCK[20], winnerLen / 2);
+    
+    // Hide all sprites
+    hideSprites();
+        
+    // Clear Score and Lives text
+    drawText(2, 2, "          ");  // Erase score text
+    drawText(2, 4, "          ");  // Erase lives text
+    
     waitForVBlank();
+    DMANow(3, shadowOAM, OAM, 128 * 4); // Update OAM after hiding sprites
+    
     if (BUTTON_PRESSED(BUTTON_START)) {
-        goToStart();
+            goToStart();
     }
 }

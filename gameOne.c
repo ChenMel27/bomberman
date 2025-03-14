@@ -16,7 +16,7 @@ void updateGameOne() {
     if (checkPlayerEnemyCollision()) {
         lives--;  // Decrease lives
         if (lives <= 0) {
-            goToLose();
+            goToLose();  // Transition to Game Two instead of Lose screen
         } else {
             initializePlayer();  // Respawn player
             initializeEnemies(0);  // Only reset active enemies
@@ -29,17 +29,23 @@ void updateGameOne() {
 }
 
 
+
 void drawGameOne() {
     drawEnemies();
     drawPlayer();
-    drawBomb();
+    drawBomb();  // Updated for multiple bombs
 
     drawText(2, 2, "SCORE:");
-    drawNumber(9, 2, score);  // Score at (9,2)
+    drawText(9, 2, "   ");  // Clear space for new score
+    drawNumber(9, 2, score);
 
     drawText(2, 4, "LIVES:");
-    drawNumber(9, 4, lives);  // Lives at (9,4)
+    drawText(9, 4, "   ");  // Clear space for new lives count
+    drawNumber(9, 4, lives);
 }
+
+
+
 
 
 void drawSpriteNumber(int x, int y, int num) {
