@@ -19,8 +19,6 @@ OBJ_ATTR shadowOAM[128];
 void initialize();
 void updateGameOne();
 void drawGameOne();
-
-// State Prototypes
 void goToStart();
 void start();
 void goToGameOne();
@@ -38,11 +36,15 @@ void win();
 enum {START, GAMEONE, GAMETWO, PAUSE, WIN, LOSE};
 int state;
 
+// Score and lives trackers
 int score = 0;
 int lives = 3;
 
+int paused = 0;
+
 unsigned short oldButtons;
 unsigned short buttons;
+
 SPRITE player;
 extern int round;
 
@@ -82,18 +84,20 @@ void initialize() {
     REG_DISPCTL = MODE(0) | BG_ENABLE(1) | SPRITE_ENABLE | BG_ENABLE(0);
 
     REG_BG1CNT = BG_SCREENBLOCK(20) | BG_CHARBLOCK(0);
-    REG_BG0CNT = BG_SCREENBLOCK(28) | BG_CHARBLOCK(1) | BG_SIZE_SMALL;  // Use BG0 for text
+    // BG0 for drawing text
+    REG_BG0CNT = BG_SCREENBLOCK(28) | BG_CHARBLOCK(1) | BG_SIZE_SMALL;
 
-    // Load backgrounds
+    // BG
     DMANow(3, bgMap, &SCREENBLOCK[20], bgLen / 2);
     DMANow(3, tilesetPal, BG_PALETTE, tilesetPalLen / 2);
     DMANow(3, tilesetTiles, &CHARBLOCK[0], tilesetTilesLen / 2);
 
-    // Load font tiles into CHARBLOCK 1
+    // Font
     DMANow(3, fontTiles, &CHARBLOCK[1], fontTilesLen / 2);
-    DMANow(3, fontPal, BG_PALETTE + 16, fontPalLen / 2);  // Use a different palette bank
+        // Dif palette
+    DMANow(3, fontPal, BG_PALETTE + 16, fontPalLen / 2);
 
-    // Load sprites
+    // Sprites
     DMANow(3, spriteTiles, &CHARBLOCK[4], spriteTilesLen / 2);
     DMANow(3, spritePal, SPRITE_PAL, 256);
 
@@ -102,7 +106,6 @@ void initialize() {
     hideSprites();
     waitForVBlank();
     DMANow(3, shadowOAM, OAM, 128 * 4);
-
     goToStart();
 }
 
@@ -111,7 +114,7 @@ void goToStart() {
 }
 
 void start() {
-    // Load lose screen background
+    // Start screen
     DMANow(3, startMap, &SCREENBLOCK[20], startLen / 2);
 
     if (BUTTON_PRESSED(BUTTON_START)) {
@@ -121,11 +124,17 @@ void start() {
 
 void goToGameOne() {
     state = GAMEONE;
+
+    // First map
     DMANow(3, bgMap, &SCREENBLOCK[20], bgLen / 2);
-    initializeEnemies(1);
-    initializePlayer();
-    lives = 3;  // Reset lives at start of level
-    round = 1;
+
+    if (paused == 0) {
+        // Full initialization of enemies
+        initializeEnemies(1);
+        initializePlayer();
+        lives = 3;
+        round = 1;
+    }
 }
 
 
@@ -134,20 +143,28 @@ void gameOne() {
     drawGameOne();
     waitForVBlank();
 
+    // Pause
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToPause();
     }
 }
 
 void goToGameTwo() {
+    // Second map
     DMANow(3, bg2Map, &SCREENBLOCK[20], bg2Len / 2);
 
-    score = 0;
-    lives = 3;
-    playerImmuneToBombs = 0;  // Reset power-ups when changing levels
-    round = 2;
-    initializeEnemies(1);
-    initializePlayer();
+    if (paused == 0) {
+        score = 0;
+        lives = 3;
+        round = 2;
+
+        // Reset power-up
+        playerImmuneToBombs = 0;
+        
+        // Full reset of enemies
+        initializeEnemies(1);
+        initializePlayer();
+    }
     state = GAMETWO;
 }
 
@@ -156,9 +173,9 @@ void goToGameTwo() {
 
 void gameTwo() {
     updateGameTwo();
-        // Clear any leftover score/lives text before drawing new UI
-        drawText(2, 2, "          ");  // Erase old score from game one
-        drawText(2, 4, "          ");  // Erase old lives from game one
+    // Clear leftover text
+    drawText(2, 2, "          ");
+    drawText(2, 4, "          ");
     drawGameTwo();
     waitForVBlank();
 
@@ -172,9 +189,15 @@ void goToPause() {
 }
 
 void pause() {
+    paused = 1;
     waitForVBlank();
     if (BUTTON_PRESSED(BUTTON_START)) {
-        goToGameOne();
+        if (round == 1) {
+            goToGameOne();
+        } else {
+            goToGameTwo();
+        }
+        paused = 0;
     } else if (BUTTON_PRESSED(BUTTON_SELECT)) {
         goToStart();
     }
@@ -185,18 +208,19 @@ void goToLose() {
 }
 
 void lose() {
-    // Load lose screen background
+    // Show lose screen
     DMANow(3, loserMap, &SCREENBLOCK[20], loserLen / 2);
     
-    // Hide all sprites
+    // Hide sprites
     hideSprites();
     
-    // Clear Score and Lives text
-    drawText(2, 2, "          ");  // Erase score text
-    drawText(2, 4, "          ");  // Erase lives text
+    // Hide text
+    drawText(2, 2, "         ");
+    drawText(2, 4, "         ");
 
+    // Update OAM after hide sprites
     waitForVBlank();
-    DMANow(3, shadowOAM, OAM, 128 * 4); // Update OAM after hiding sprites
+    DMANow(3, shadowOAM, OAM, 128 * 4);
 
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();
@@ -209,18 +233,19 @@ void goToWin() {
 }
 
 void win() {
-    // Load lose screen background
+    // Show win map
     DMANow(3, winnerMap, &SCREENBLOCK[20], winnerLen / 2);
     
-    // Hide all sprites
+    // Hide sprites
     hideSprites();
         
-    // Clear Score and Lives text
-    drawText(2, 2, "          ");  // Erase score text
-    drawText(2, 4, "          ");  // Erase lives text
+    // Hide text
+    drawText(2, 2, "           ");
+    drawText(2, 4, "           ");
     
+    // Upd. OAM
     waitForVBlank();
-    DMANow(3, shadowOAM, OAM, 128 * 4); // Update OAM after hiding sprites
+    DMANow(3, shadowOAM, OAM, 128 * 4);
     
     if (BUTTON_PRESSED(BUTTON_START)) {
             goToStart();

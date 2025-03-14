@@ -137,6 +137,7 @@ typedef struct {
 
 int isPassablePixel(int x, int y, int game);
 unsigned char colorAt(int x, int y);
+unsigned char colorAt2(int x, int y);
 
 
 unsigned short getTileAtWorld(int worldX, int worldY);
@@ -145,6 +146,13 @@ int checkCollisionDestructableWall(int worldX, int worldY);
 int checkCollisionSoftBlock(int worldX, int worldY);
 int checkCollisionWin(int worldX, int worldY);
 void destroySoftBlockAt(int worldX, int worldY);
+
+
+void drawText(int tileX, int tileY, char *text);
+void drawNumber(int tileX, int tileY, int num);
+
+
+int checkPlayerEnemyCollision();
 # 3 "sprites.c" 2
 
 # 1 "mode0.h" 1
@@ -395,7 +403,6 @@ extern const unsigned short spritePal[256];
 # 11 "gameOne.h"
 extern int score;
 extern int lives;
-
 
 void updateGameOne();
 void drawGameOne();
@@ -1024,15 +1031,9 @@ extern long double strtold (const char *restrict, char **restrict);
 # 336 "/opt/devkitpro/devkitARM/arm-none-eabi/include/stdlib.h" 3
 
 # 12 "sprites.c" 2
+# 21 "sprites.c"
 
-
-
-
-
-
-
-
-# 19 "sprites.c"
+# 21 "sprites.c"
 int playerImmuneToBombs = 0;
 
 
@@ -1076,12 +1077,15 @@ void initializePlayer() {
 
 
 void initializeEnemies(int fullReset) {
+
     if (fullReset) {
         enemy1.active = 1;
         enemy2.active = 1;
         enemy3.active = 1;
         enemy4.active = 1;
     }
+
+
 
     if (enemy1.active) {
         enemy1.x = 104;
@@ -1146,6 +1150,7 @@ void updatePlayer() {
     int bottomY = player.y + player.height - 1;
 
 
+
     if ((~(buttons) & ((1<<7)))) {
         if (player.y + player.height < 256 &&
             isPassablePixel(leftX, bottomY + 1, round) &&
@@ -1187,8 +1192,10 @@ void updatePlayer() {
 
 
     if ((!(~(oldButtons) & ((1<<2))) && (~(buttons) & ((1<<2)))) && !bomb.active) {
+
         bomb.x = (player.x / 8) * 8;
         bomb.y = (player.y / 8) * 8;
+
         bomb.timer = 60;
         bomb.active = 1;
     }
@@ -1202,8 +1209,12 @@ void updatePlayer() {
 
 
 void updateEnemies() {
+
     static int changeTimer = 0;
     changeTimer++;
+
+
+
 
 
     if (enemy1.active && enemy1DeathTimer == 0) {
@@ -1235,6 +1246,11 @@ void updateEnemies() {
             }
         }
     }
+
+
+
+
+
     if (enemy2.active && enemy2DeathTimer == 0) {
         if (changeTimer % 30 == 0) {
             if (enemy2.direction == LEFT || enemy2.direction == RIGHT)
@@ -1265,11 +1281,14 @@ void updateEnemies() {
         }
     }
 
-
     static int enemyDelayCounter = 0;
     enemyDelayCounter++;
     if (enemyDelayCounter >= 3) {
         enemyDelayCounter = 0;
+
+
+
+
         if (enemy3.active && enemy3DeathTimer == 0) {
             if (player.x > enemy3.x)
                 enemy3.x++;
@@ -1280,6 +1299,10 @@ void updateEnemies() {
             else if (player.y < enemy3.y)
                 enemy3.y--;
         }
+
+
+
+
         if (enemy4.active && enemy4DeathTimer == 0) {
             if (player.x > enemy4.x)
                 enemy4.x++;
@@ -1323,14 +1346,12 @@ void updateEnemies() {
     }
 }
 
-
-
-
 void updateBomb() {
     if (bomb.active) {
         if (bomb.timer > 0) {
             bomb.timer--;
             if (bomb.timer == 0) {
+
 
                 bomb.explosionTimer = 20;
                 handleExplosion(bomb.x, bomb.y);
@@ -1344,7 +1365,6 @@ void updateBomb() {
                 shadowOAM[7].attr0 = (2<<8);
                 shadowOAM[8].attr0 = (2<<8);
                 shadowOAM[9].attr0 = (2<<8);
-
                 bomb.active = 0;
             }
         }
@@ -1356,8 +1376,10 @@ void drawEnemies() {
     if (enemy1.active) {
         int tileRow = 2;
         int tileCol = 2;
+
         if (enemy1DeathTimer > 0) {
             tileCol = 1;
+
             tileRow = (enemy1DeathTimer > 15) ? 0 : 1;
         } else {
             tileRow = enemy1.currentFrame % 2;
@@ -1429,16 +1451,15 @@ void drawEnemies() {
     }
 }
 
-
-
-
 void drawPlayer() {
     int tileIndex = 0;
+
+
     switch(player.direction) {
-        case DOWN: tileIndex = 0; break;
+        case DOWN: tileIndex = 10; break;
         case UP: tileIndex = 2; break;
-        case RIGHT: tileIndex = 4; break;
-        case LEFT: tileIndex = 6; break;
+        case RIGHT: tileIndex = 11; break;
+        case LEFT: tileIndex = 8; break;
     }
     shadowOAM[player.oamIndex].attr0 = ((player.y) & 0xFF) | (0<<14);
     shadowOAM[player.oamIndex].attr1 = ((player.x) & 0x1FF);
@@ -1515,11 +1536,16 @@ int loseCondition() {
         collision(enemy3.x, enemy3.y, enemy3.width, enemy3.height, player.x, player.y, player.width, player.height) ||
         collision(enemy4.x, enemy4.y, enemy4.width, enemy4.height, player.x, player.y, player.width, player.height)) {
 
+
         lives--;
         if (lives <= 0) {
+
             goToLose();
         } else {
+
             initializePlayer();
+
+            initializeEnemies(0);
         }
         return 1;
     }
@@ -1574,6 +1600,7 @@ void handleExplosion(int bx, int by) {
                 goToLose();
             } else {
                 initializePlayer();
+                initializeEnemies(0);
             }
         }
     }

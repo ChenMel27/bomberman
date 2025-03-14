@@ -83,7 +83,6 @@ extern const unsigned short spritePal[256];
 extern int score;
 extern int lives;
 
-
 void updateGameOne();
 void drawGameOne();
 # 7 "helper.c" 2
@@ -96,7 +95,15 @@ extern unsigned short collisionMapBitmap[65536] __attribute__((section(".ewram")
 extern unsigned short collisionMap2Bitmap[65536] __attribute__((section(".ewram")));
 # 9 "helper.c" 2
 # 1 "sprites.h" 1
-# 9 "sprites.h"
+
+
+
+
+
+
+
+extern int playerImmuneToBombs;
+
 void initializeEnemies();
 void initializePlayer();
 void updateEnemies();
@@ -156,7 +163,7 @@ struct oam_attrs {
   struct attr0 attr0;
   struct attr1 attr1;
 };
-# 112 "sprites.h"
+# 113 "sprites.h"
 void hideSprites();
 
 
@@ -186,16 +193,13 @@ typedef struct {
 
 extern unsigned short bg2Map[2048];
 # 11 "helper.c" 2
-
-
-
-
-
-
-
+# 20 "helper.c"
+extern SPRITE enemy1;
+extern SPRITE enemy2;
+extern SPRITE enemy3;
+extern SPRITE enemy4;
+extern SPRITE player;
 extern int round;
-
-
 
 
 
@@ -203,39 +207,43 @@ inline unsigned char colorAt(int x, int y) {
     return ((unsigned char *)collisionMapBitmap)[((y) * (512) + (x))];
 }
 
+
 inline unsigned char colorAt2(int x, int y) {
     return ((unsigned char *)collisionMap2Bitmap)[((y) * (512) + (x))];
 }
 
 
 int isPassablePixel(int x, int y, int game) {
+
     if (game == 1) {
-        if(x < 0 || x >= 512 || y < 0 || y >= 256)
-        return 0;
+        if(x < 0 || x >= 512 || y < 0 || y >= 256) return 0;
         return (colorAt(x, y) != 0 && colorAt(x, y) != 1);
+
     } else if (game == 2) {
-        if(x < 0 || x >= 512 || y < 0 || y >= 256)
-        return 0;
+        if(x < 0 || x >= 512 || y < 0 || y >= 256) return 0;
         return (colorAt2(x, y) != 0 && colorAt2(x, y) != 1);
     }
 }
-# 56 "helper.c"
-extern SPRITE enemy1;
-extern SPRITE enemy2;
-extern SPRITE enemy3;
-extern SPRITE enemy4;
-extern SPRITE player;
+
+
+
 
 unsigned short getTileAtWorld(int worldX, int worldY) {
+
     int tileX = worldX / 8;
     int tileY = worldY / 8;
+
+
     if (tileX < 0 || tileX >= 32 || tileY < 0 || tileY >= 32) {
         return 0xFFFF;
     }
+
     int tileIndex = tileY * 32 + tileX;
+
+
     if (round == 1) {
         return bgMap[tileIndex];
-    } else {
+    } else if (round == 2) {
         return bg2Map[tileIndex];
     }
 }
@@ -262,28 +270,40 @@ int checkCollisionSoftBlock(int worldX, int worldY) {
            (getTileAtWorld(worldX + 8 - 1, worldY + 8 - 1) == 0x0004);
 }
 
+
+
+
 int checkCollisionWin(int worldX, int worldY) {
+
     int enemiesGone = (enemy1.active == 0 && enemy2.active == 0
         && enemy3.active == 0 && enemy4.active == 0) ? 1 : 0;
+
     return enemiesGone & ((getTileAtWorld(worldX, worldY) == 0x0002) ||
            (getTileAtWorld(worldX + 8 - 1, worldY) == 0x0002) ||
            (getTileAtWorld(worldX, worldY + 8 - 1) == 0x0002) ||
            (getTileAtWorld(worldX + 8 - 1, worldY + 8 - 1) == 0x0002));
 }
 
+
 void destroySoftBlockAt(int worldX, int worldY) {
     int tileX = worldX / 8;
     int tileY = worldY / 8;
+
+
     if (tileX < 0 || tileX >= 32 || tileY < 0 || tileY >= 32) {
         return;
     }
     int tileIndex = tileY * 32 + tileX;
+
+
     if (round == 1) {
         if (bgMap[tileIndex] == 0x0003) {
             bgMap[tileIndex] = 0x0000;
+
             DMANow(3, bgMap, &((SB*) 0x6000000)[20], (4096) / 2);
             int startX = tileX * 8;
             int startY = tileY * 8;
+
             for (int y = 0; y < 8; y++) {
                 for (int x = 0; x < 8; x++) {
                     int pixelX = startX + x;
@@ -292,6 +312,7 @@ void destroySoftBlockAt(int worldX, int worldY) {
                 }
             }
         }
+
     } else {
         if (bg2Map[tileIndex] == 0x0003) {
             bg2Map[tileIndex] = 0x0000;
@@ -309,8 +330,8 @@ void destroySoftBlockAt(int worldX, int worldY) {
     }
 }
 
-
 void drawText(int tileX, int tileY, char *text) {
+
     int index = tileY * 32 + tileX;
 
     while (*text) {
@@ -333,15 +354,6 @@ void drawText(int tileX, int tileY, char *text) {
         else if (c == ':') {
             tileIndex = 26;
         }
-        else if (c == '@') {
-            tileIndex = 31;
-        }
-        else if (c == '?') {
-            tileIndex = 30;
-        }
-        else {
-            tileIndex = 0;
-        }
 
 
         ((SB*) 0x6000000)[28].tilemap[index] = tileIndex | (1 << 12);
@@ -350,29 +362,17 @@ void drawText(int tileX, int tileY, char *text) {
     }
 }
 
-
 void drawNumber(int tileX, int tileY, int num) {
     char buffer[10];
+
     sprintf(buffer, "%d", num);
     drawText(tileX, tileY, buffer);
 }
 
 int checkPlayerEnemyCollision() {
-    if (enemy1.active && collision(player.x, player.y, player.width, player.height,
-                                   enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
-        return 1;
-    }
-    if (enemy2.active && collision(player.x, player.y, player.width, player.height,
-                                   enemy2.x, enemy2.y, enemy2.width, enemy2.height)) {
-        return 1;
-    }
-    if (enemy3.active && collision(player.x, player.y, player.width, player.height,
-                                   enemy3.x, enemy3.y, enemy3.width, enemy3.height)) {
-        return 1;
-    }
-    if (enemy4.active && collision(player.x, player.y, player.width, player.height,
-                                   enemy4.x, enemy4.y, enemy4.width, enemy4.height)) {
-        return 1;
-    }
+    if (enemy1.active && collision(player.x, player.y, player.width, player.height, enemy1.x, enemy1.y, enemy1.width, enemy1.height)) return 1;
+    if (enemy2.active && collision(player.x, player.y, player.width, player.height, enemy2.x, enemy2.y, enemy2.width, enemy2.height)) return 1;
+    if (enemy3.active && collision(player.x, player.y, player.width, player.height, enemy3.x, enemy3.y, enemy3.width, enemy3.height)) return 1;
+    if (enemy4.active && collision(player.x, player.y, player.width, player.height, enemy4.x, enemy4.y, enemy4.width, enemy4.height)) return 1;
     return 0;
 }

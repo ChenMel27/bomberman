@@ -1046,8 +1046,7 @@ drawPlayer:
 	@ frame_needed = 0, uses_anonymous_args = 0
 	ldr	r1, .L202
 	ldr	r3, [r1, #32]
-	sub	r3, r3, #1
-	cmp	r3, #2
+	cmp	r3, #3
 	movhi	r0, #0
 	str	lr, [sp, #-4]!
 	ldrls	r2, .L202+4
@@ -1309,22 +1308,23 @@ loseCondition:
 	cmp	r3, #0
 	str	r3, [r2]
 	ble	.L249
-	mov	r1, #1
-	mov	r3, #0
-	mov	r2, #8
-	mov	r5, #24
-	mov	lr, #4
-	mov	ip, #15
-	mov	r0, r1
-	str	r1, [r4, #32]
-	str	r3, [r4]
-	str	r3, [r4, #40]
-	strb	r3, [r4, #48]
-	str	r5, [r4, #4]
-	str	r2, [r4, #16]
-	str	r2, [r4, #20]
-	str	lr, [r4, #44]
-	str	ip, [r4, #28]
+	mov	r0, #0
+	mov	r3, #8
+	mov	ip, #24
+	mov	r1, #4
+	mov	r2, #15
+	mov	r5, #1
+	str	r0, [r4]
+	str	r0, [r4, #40]
+	strb	r0, [r4, #48]
+	str	ip, [r4, #4]
+	str	r3, [r4, #16]
+	str	r3, [r4, #20]
+	str	r1, [r4, #44]
+	str	r2, [r4, #28]
+	str	r5, [r4, #32]
+	bl	initializeEnemies
+	mov	r0, r5
 .L241:
 	add	sp, sp, #16
 	@ sp needed
@@ -1547,23 +1547,24 @@ handleExplosion:
 	cmp	r3, #0
 	str	r3, [r2]
 	ble	.L296
-	ldr	ip, [sp, #20]
 	mov	r3, #1
-	mov	r0, #24
+	mov	lr, #8
+	mov	ip, #24
 	mov	r1, #4
 	mov	r2, #15
-	str	ip, [r7]
-	str	ip, [r7, #40]
-	strb	ip, [r7, #48]
-	mov	ip, #8
+	ldr	r0, [sp, #20]
 	str	r3, [r7, #32]
-	add	r3, sp, #56
-	cmp	r4, r3
-	str	ip, [r7, #16]
-	str	ip, [r7, #20]
-	str	r0, [r7, #4]
+	str	r0, [r7]
+	str	r0, [r7, #40]
+	strb	r0, [r7, #48]
+	str	lr, [r7, #16]
+	str	lr, [r7, #20]
+	str	ip, [r7, #4]
 	str	r1, [r7, #44]
 	str	r2, [r7, #28]
+	bl	initializeEnemies
+	add	r3, sp, #56
+	cmp	r4, r3
 	bne	.L297
 .L256:
 	add	sp, sp, #68
@@ -1752,11 +1753,12 @@ hideSprites:
 	.align	2
 	.set	.LANCHOR2,. + 0
 	.type	CSWTCH.86, %object
-	.size	CSWTCH.86, 12
+	.size	CSWTCH.86, 16
 CSWTCH.86:
-	.word	4
+	.word	10
+	.word	11
 	.word	2
-	.word	6
+	.word	8
 	.data
 	.align	2
 	.set	.LANCHOR0,. + 0
@@ -1780,9 +1782,9 @@ bomb:
 	.size	playerImmuneToBombs, 4
 playerImmuneToBombs:
 	.space	4
-	.type	changeTimer.4678, %object
-	.size	changeTimer.4678, 4
-changeTimer.4678:
+	.type	changeTimer.4690, %object
+	.size	changeTimer.4690, 4
+changeTimer.4690:
 	.space	4
 	.type	enemy1DeathTimer, %object
 	.size	enemy1DeathTimer, 4
@@ -1792,9 +1794,9 @@ enemy1DeathTimer:
 	.size	enemy2DeathTimer, 4
 enemy2DeathTimer:
 	.space	4
-	.type	enemyDelayCounter.4679, %object
-	.size	enemyDelayCounter.4679, 4
-enemyDelayCounter.4679:
+	.type	enemyDelayCounter.4691, %object
+	.size	enemyDelayCounter.4691, 4
+enemyDelayCounter.4691:
 	.space	4
 	.type	enemy3DeathTimer, %object
 	.size	enemy3DeathTimer, 4

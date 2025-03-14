@@ -8,7 +8,7 @@
 #include "tileset.h"
 #include "sprite.h"
 #include "gameOne.h"
-#include <stdlib.h>  // for rand()
+#include <stdlib.h>
 
 #define BOMB_TILE_ROW 0
 #define BOMB_TILE_COL 3
@@ -16,9 +16,11 @@
 #define COLLISION_MAP_HEIGHT 256
 #define EXPLOSION_TILE_ROW 2
 #define EXPLOSION_TILE_COL 4
-int playerImmuneToBombs = 0;  // Default is OFF (0), player can be harmed
 
-// Global death timers for enemies (initially 0 means enemy is not dying)
+// Power up = 0 so player can be hurt by own bombs
+int playerImmuneToBombs = 0;
+
+// Death timers for enemy = 0 so enemies aren't dying
 int enemy1DeathTimer = 0;
 int enemy2DeathTimer = 0;
 int enemy3DeathTimer = 0;
@@ -59,13 +61,16 @@ void initializePlayer() {
 
 
 void initializeEnemies(int fullReset) {
-    if (fullReset) {  // If it's a new game, reset all enemies
+    // If it's a new game reset all enemies active
+    if (fullReset) {
         enemy1.active = 1;
         enemy2.active = 1;
         enemy3.active = 1;
         enemy4.active = 1;
     }
 
+    // This check basically hackingly fixes reset when lives are > 0 so that inactive enemies
+    // aren't redrawn
     if (enemy1.active) {
         enemy1.x = 104;
         enemy1.y = 104;
@@ -122,15 +127,16 @@ void initializeEnemies(int fullReset) {
 
 
 void updatePlayer() {
-    // Calculate the four corners of the player sprite.
+    // Calculate sprite corners of player.
     int leftX   = player.x;
     int rightX  = player.x + player.width - 1;
     int topY    = player.y;
     int bottomY = player.y + player.height - 1;
     
-    // Move DOWN.
+    // COLLISION MAP IMPLEMENTATION FOR PLAYER
+    // Down movement
     if (BUTTON_HELD(BUTTON_DOWN)) {
-        if (player.y + player.height < COLLISION_MAP_HEIGHT &&  // Use COLLISION_MAP_HEIGHT instead of 160
+        if (player.y + player.height < COLLISION_MAP_HEIGHT && 
             isPassablePixel(leftX, bottomY + 1, round) &&
             isPassablePixel(rightX, bottomY + 1, round)) {
             player.y++;
@@ -138,7 +144,7 @@ void updatePlayer() {
         player.direction = DOWN;
     }
     
-    // Move UP.
+    // Up movement
     if (BUTTON_HELD(BUTTON_UP)) {
         if (player.y > 0 &&
             isPassablePixel(leftX, topY - 1, round) &&
@@ -148,9 +154,9 @@ void updatePlayer() {
         player.direction = UP;
     }
     
-    // Move RIGHT.
+    // Right movement
     if (BUTTON_HELD(BUTTON_RIGHT)) {
-        if (player.x + player.width < COLLISION_MAP_WIDTH &&  // Use COLLISION_MAP_WIDTH instead of 240
+        if (player.x + player.width < COLLISION_MAP_WIDTH &&
             isPassablePixel(rightX + 1, topY, round) &&
             isPassablePixel(rightX + 1, bottomY, round)) {
             player.x++;
@@ -158,7 +164,7 @@ void updatePlayer() {
         player.direction = RIGHT;
     }
     
-    // Move LEFT.
+    // Left movement
     if (BUTTON_HELD(BUTTON_LEFT)) {
         if (player.x > 0 &&
             isPassablePixel(leftX - 1, topY, round) &&
@@ -168,27 +174,33 @@ void updatePlayer() {
         player.direction = LEFT;
     }
     
-    // Bomb placement remains unchanged.
+    // Placing bombs
     if (BUTTON_PRESSED(BUTTON_SELECT) && !bomb.active) {
+        // Set it where player is (behind)
         bomb.x = (player.x / TILE_SIZE) * TILE_SIZE;
         bomb.y = (player.y / TILE_SIZE) * TILE_SIZE;
-        bomb.timer = 60; // 60 frames before explosion.
+        // 60 frames currently
+        bomb.timer = 60;
         bomb.active = 1;
     }
 
-    // Check if player collects a power-up (example collision with power-up tile)
+    // If player hits LSHOULDER their bomb immunity power up is activated for THAT game
     if (BUTTON_PRESSED(BUTTON_LSHOULDER)) {
-        playerImmuneToBombs = 1;  // Activate power-up
+        playerImmuneToBombs = 1;
     }
 
 }
 
 
 void updateEnemies() {
+    // Time for animating enemies
     static int changeTimer = 0;
     changeTimer++;
 
-    // For enemy1 and enemy2, only update normal movement if they’re not dying.
+    // ENEMY 1: 
+    // Type 2: Moves randomly in that the enemy frequently changes directions (from up/down to left/right and vice versa).
+    // Its movement pattern is not affected by the player.
+    // If not dying, normal movement:
     if (enemy1.active && enemy1DeathTimer == 0) {
         if (changeTimer % 30 == 0) {
             if (enemy1.direction == LEFT || enemy1.direction == RIGHT)
@@ -218,6 +230,11 @@ void updateEnemies() {
             }
         }
     }
+
+    // ENEMY 2: 
+    // Type 2: Moves randomly in that the enemy frequently changes directions (from up/down to left/right and vice versa).
+    // Its movement pattern is not affected by the player.
+    // If not dying, normal movement:
     if (enemy2.active && enemy2DeathTimer == 0) {
         if (changeTimer % 30 == 0) {
             if (enemy2.direction == LEFT || enemy2.direction == RIGHT)
@@ -248,11 +265,14 @@ void updateEnemies() {
         }
     }
 
-    // Update enemy3 and enemy4 (they chase the player) only if not dying.
     static int enemyDelayCounter = 0;
     enemyDelayCounter++;
     if (enemyDelayCounter >= 3) {
         enemyDelayCounter = 0;
+        // ENEMY 3: 
+        // Type 4: Moves similarly to Type 2, but can travel through soft blocks.
+        // Its movement pattern is not affected by the player.
+        // If not dying, normal movement:
         if (enemy3.active && enemy3DeathTimer == 0) {
             if (player.x > enemy3.x)
                 enemy3.x++;
@@ -263,6 +283,10 @@ void updateEnemies() {
             else if (player.y < enemy3.y)
                 enemy3.y--;
         }
+        // ENEMY 4: 
+        // Type 4: Moves similarly to Type 2, but can travel through soft blocks.
+        // Its movement pattern is not affected by the player.
+        // If not dying, normal movement:
         if (enemy4.active && enemy4DeathTimer == 0) {
             if (player.x > enemy4.x)
                 enemy4.x++;
@@ -275,7 +299,7 @@ void updateEnemies() {
         }
     }
 
-    // Process death timers:
+    // Death timers for animation ALL ENEMIES, once 0, then inactivate / hide sprite
     if (enemy1DeathTimer > 0) {
         enemy1DeathTimer--;
         if (enemy1DeathTimer == 0) {
@@ -306,28 +330,25 @@ void updateEnemies() {
     }
 }
 
-
-
-
 void updateBomb() {
     if (bomb.active) {
         if (bomb.timer > 0) {
             bomb.timer--;
             if (bomb.timer == 0) {
-                // Bomb detonates: start explosion and set it to be visible for 20 frames.
+            // Bomb dropped:
+                // BOMB is visible for 20 frames
                 bomb.explosionTimer = 20;
                 handleExplosion(bomb.x, bomb.y);
             }
         } else if (bomb.explosionTimer > 0) {
             bomb.explosionTimer--;
             if (bomb.explosionTimer == 0) {
-                // Clear explosion sprites from OAM.
+                // Clear explosion sprites from OAM
                 shadowOAM[bomb.oamIndex].attr0 = ATTR0_HIDE;
                 shadowOAM[6].attr0 = ATTR0_HIDE;
                 shadowOAM[7].attr0 = ATTR0_HIDE;
                 shadowOAM[8].attr0 = ATTR0_HIDE;
                 shadowOAM[9].attr0 = ATTR0_HIDE;
-                // End the bomb's active state.
                 bomb.active = 0;
             }
         }
@@ -339,11 +360,13 @@ void drawEnemies() {
     if (enemy1.active) {
         int tileRow = 2;
         int tileCol = 2;
+
         if (enemy1DeathTimer > 0) {
             tileCol = 1;
+            // 15 frame animation when death
             tileRow = (enemy1DeathTimer > 15) ? 0 : 1;
         } else {
-            tileRow = enemy1.currentFrame % 2;  // Normal: T0,2 or T1,2
+            tileRow = enemy1.currentFrame % 2;
         }
         shadowOAM[enemy1.oamIndex].attr0 = ATTR0_Y(enemy1.y) | ATTR0_SQUARE | ATTR0_REGULAR;
         shadowOAM[enemy1.oamIndex].attr1 = ATTR1_X(enemy1.x) | ATTR1_TINY;
@@ -381,7 +404,7 @@ void drawEnemies() {
             tileCol = 1;
             tileRow = (enemy3DeathTimer > 15) ? 2 : 3;
         } else {
-            tileRow = (enemy3.currentFrame % 2) + 2;  // Normal: T2,2 or T3,2
+            tileRow = (enemy3.currentFrame % 2) + 2;
         }
         shadowOAM[enemy3.oamIndex].attr0 = ATTR0_Y(enemy3.y) | ATTR0_SQUARE | ATTR0_REGULAR;
         shadowOAM[enemy3.oamIndex].attr1 = ATTR1_X(enemy3.x) | ATTR1_TINY;
@@ -412,16 +435,15 @@ void drawEnemies() {
     }
 }
 
-
-
-
 void drawPlayer() {
     int tileIndex = 0;
+
+    // Animating sprite
     switch(player.direction) {
-        case DOWN:  tileIndex = 0; break;
+        case DOWN:  tileIndex = 10; break;
         case UP:    tileIndex = 2; break;
-        case RIGHT: tileIndex = 4; break;
-        case LEFT:  tileIndex = 6; break;
+        case RIGHT: tileIndex = 11; break;
+        case LEFT:  tileIndex = 8; break;
     }
     shadowOAM[player.oamIndex].attr0 = ATTR0_Y(player.y) | ATTR0_SQUARE;
     shadowOAM[player.oamIndex].attr1 = ATTR1_X(player.x);
@@ -431,12 +453,12 @@ void drawPlayer() {
 void drawBomb() {
     if (bomb.active) {
         if (bomb.timer > 0) {
-            // Draw bomb sprite.
+            // Draw bomb sprite
             shadowOAM[bomb.oamIndex].attr0 = ATTR0_Y(bomb.y) | ATTR0_SQUARE | ATTR0_REGULAR;
             shadowOAM[bomb.oamIndex].attr1 = ATTR1_X(bomb.x);
             shadowOAM[bomb.oamIndex].attr2 = ATTR2_TILEID(BOMB_TILE_ROW, BOMB_TILE_COL) | ATTR2_PALROW(0);
         } else if (bomb.explosionTimer > 0) {
-            // Draw center explosion.
+            // Draw center when explode happens
             shadowOAM[bomb.oamIndex].attr0 = ATTR0_Y(bomb.y) | ATTR0_SQUARE | ATTR0_REGULAR;
             shadowOAM[bomb.oamIndex].attr1 = ATTR1_X(bomb.x);
             shadowOAM[bomb.oamIndex].attr2 = ATTR2_TILEID(2, 4) | ATTR2_PALROW(0);
@@ -498,11 +520,16 @@ int loseCondition() {
         collision(enemy3.x, enemy3.y, enemy3.width, enemy3.height, player.x, player.y, player.width, player.height) ||
         collision(enemy4.x, enemy4.y, enemy4.width, enemy4.height, player.x, player.y, player.width, player.height)) {
         
-        lives--;  // Decrease lives when hit
+        // Decrement the lives when hit by an enemy
+        lives--;
         if (lives <= 0) {
-            goToLose();  // If lives run out, go to Lose screen
+            // If lives run out, go to lose game state
+            goToLose();
         } else {
-            initializePlayer();  // Respawn player if lives remain
+            // Respawn player if lives remain
+            initializePlayer(); 
+            // Not a full reset of enemies
+            initializeEnemies(0);
         }
         return 1;
     }
@@ -557,6 +584,7 @@ void handleExplosion(int bx, int by) {
                 goToLose();
             } else {
                 initializePlayer();
+                initializeEnemies(0);
             }
         }
     }

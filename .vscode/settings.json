@@ -23,6 +23,8 @@
         "sprites.h": "c",
         "helper.h": "c",
         "print.h": "c",
-        "collisionmap.h": "c"
+        "collisionmap.h": "c",
+        "bg2.h": "c",
+        "bg.h": "c"
     }
 }

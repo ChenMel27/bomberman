@@ -379,7 +379,6 @@ extern const unsigned short spritePal[256];
 extern int score;
 extern int lives;
 
-
 void updateGameOne();
 void drawGameOne();
 # 9 "main.c" 2
@@ -390,6 +389,7 @@ void drawGameOne();
 
 int isPassablePixel(int x, int y, int game);
 unsigned char colorAt(int x, int y);
+unsigned char colorAt2(int x, int y);
 
 
 unsigned short getTileAtWorld(int worldX, int worldY);
@@ -398,6 +398,13 @@ int checkCollisionDestructableWall(int worldX, int worldY);
 int checkCollisionSoftBlock(int worldX, int worldY);
 int checkCollisionWin(int worldX, int worldY);
 void destroySoftBlockAt(int worldX, int worldY);
+
+
+void drawText(int tileX, int tileY, char *text);
+void drawNumber(int tileX, int tileY, int num);
+
+
+int checkPlayerEnemyCollision();
 # 10 "main.c" 2
 # 1 "collisionMap.h" 1
 # 19 "collisionMap.h"
@@ -456,8 +463,6 @@ OBJ_ATTR shadowOAM[128];
 void initialize();
 void updateGameOne();
 void drawGameOne();
-
-
 void goToStart();
 void start();
 void goToGameOne();
@@ -475,11 +480,15 @@ void win();
 enum {START, GAMEONE, GAMETWO, PAUSE, WIN, LOSE};
 int state;
 
+
 int score = 0;
 int lives = 3;
 
+int paused = 0;
+
 unsigned short oldButtons;
 unsigned short buttons;
+
 SPRITE player;
 extern int round;
 
@@ -519,6 +528,7 @@ void initialize() {
     (*(volatile unsigned short *)0x4000000) = ((0) & 7) | (1 << (8 + (1 % 4))) | (1 << 12) | (1 << (8 + (0 % 4)));
 
     (*(volatile unsigned short*) 0x400000A) = ((20) << 8) | ((0) << 2);
+
     (*(volatile unsigned short*) 0x4000008) = ((28) << 8) | ((1) << 2) | (0 << 14);
 
 
@@ -528,6 +538,7 @@ void initialize() {
 
 
     DMANow(3, fontTiles, &((CB*) 0x6000000)[1], 3136 / 2);
+
     DMANow(3, fontPal, ((unsigned short *)0x5000000) + 16, 512 / 2);
 
 
@@ -539,7 +550,6 @@ void initialize() {
     hideSprites();
     waitForVBlank();
     DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128 * 4);
-
     goToStart();
 }
 
@@ -558,11 +568,17 @@ void start() {
 
 void goToGameOne() {
     state = GAMEONE;
+
+
     DMANow(3, bgMap, &((SB*) 0x6000000)[20], (4096) / 2);
-    initializeEnemies(1);
-    initializePlayer();
-    lives = 3;
-    round = 1;
+
+    if (paused == 0) {
+
+        initializeEnemies(1);
+        initializePlayer();
+        lives = 3;
+        round = 1;
+    }
 }
 
 
@@ -571,20 +587,28 @@ void gameOne() {
     drawGameOne();
     waitForVBlank();
 
+
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         goToPause();
     }
 }
 
 void goToGameTwo() {
+
     DMANow(3, bg2Map, &((SB*) 0x6000000)[20], (4096) / 2);
 
-    score = 0;
-    lives = 3;
-    playerImmuneToBombs = 0;
-    round = 2;
-    initializeEnemies(1);
-    initializePlayer();
+    if (paused == 0) {
+        score = 0;
+        lives = 3;
+        round = 2;
+
+
+        playerImmuneToBombs = 0;
+
+
+        initializeEnemies(1);
+        initializePlayer();
+    }
     state = GAMETWO;
 }
 
@@ -594,8 +618,8 @@ void goToGameTwo() {
 void gameTwo() {
     updateGameTwo();
 
-        drawText(2, 2, "          ");
-        drawText(2, 4, "          ");
+    drawText(2, 2, "          ");
+    drawText(2, 4, "          ");
     drawGameTwo();
     waitForVBlank();
 
@@ -609,9 +633,15 @@ void goToPause() {
 }
 
 void pause() {
+    paused = 1;
     waitForVBlank();
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
-        goToGameOne();
+        if (round == 1) {
+            goToGameOne();
+        } else {
+            goToGameTwo();
+        }
+        paused = 0;
     } else if ((!(~(oldButtons) & ((1<<2))) && (~(buttons) & ((1<<2))))) {
         goToStart();
     }
@@ -629,8 +659,9 @@ void lose() {
     hideSprites();
 
 
-    drawText(2, 2, "          ");
-    drawText(2, 4, "          ");
+    drawText(2, 2, "         ");
+    drawText(2, 4, "         ");
+
 
     waitForVBlank();
     DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128 * 4);
@@ -653,8 +684,9 @@ void win() {
     hideSprites();
 
 
-    drawText(2, 2, "          ");
-    drawText(2, 4, "          ");
+    drawText(2, 2, "           ");
+    drawText(2, 4, "           ");
+
 
     waitForVBlank();
     DMANow(3, shadowOAM, ((OBJ_ATTR*)(0x7000000)), 128 * 4);
