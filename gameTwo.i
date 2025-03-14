@@ -375,10 +375,11 @@ extern const unsigned short spriteTiles[16384];
 extern const unsigned short spritePal[256];
 # 8 "gameTwo.c" 2
 # 1 "gameOne.h" 1
-# 11 "gameOne.h"
+
+
+
 extern int score;
 extern int lives;
-
 
 void updateGameOne();
 void drawGameOne();
@@ -407,19 +408,24 @@ void updateGameTwo() {
 
 
     if (checkPlayerEnemyCollision()) {
+
         lives--;
+
         if (lives <= 0) {
             goToLose();
         } else {
+
             initializePlayer();
             initializeEnemies(0);
         }
     }
 
+
     if (winCondition()) {
         goToWin();
     }
 }
+
 
 void drawGameTwo() {
     drawEnemies();

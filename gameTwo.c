@@ -13,32 +13,37 @@ void updateGameTwo() {
     updateEnemies();
     updateBomb();
 
-    // Check if player collides with any active enemy
+    // Check collision between player and active enemy
     if (checkPlayerEnemyCollision()) {
-        lives--;  // Decrease lives
+        // Decrease lives
+        lives--;
+        // If player runs out of lives, go to lose game state
         if (lives <= 0) {
-            goToLose();  // Transition to Lose screen
+            goToLose();
         } else {
+            // Else continue to reset like game one
             initializePlayer();  // Respawn player
             initializeEnemies(0);
         }
     }
 
+    // If they beat this level, then transition to win state (2 / 2 levels)
     if (winCondition()) {
         goToWin();
     }
 }
 
+// Duplicate function in game one
 void drawGameTwo() {
     drawEnemies();
     drawPlayer();
     drawBomb();
 
     drawText(2, 2, "SCORE:");
-    drawText(17, 2, "   ");  // Clear space for new score
+    drawText(17, 2, "   ");
     drawNumber(9, 2, score);
 
     drawText(2, 4, "LIVES:");
-    drawText(17, 4, "   ");  // Clear space for new lives count
+    drawText(17, 4, "   ");
     drawNumber(9, 4, lives);
 }

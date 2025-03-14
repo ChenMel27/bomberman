@@ -379,7 +379,6 @@ extern const unsigned short spritePal[256];
 extern int score;
 extern int lives;
 
-
 void updateGameOne();
 void drawGameOne();
 # 9 "gameOne.c" 2
@@ -405,53 +404,41 @@ void updateGameOne() {
     updateEnemies();
     updateBomb();
 
+
     if (checkPlayerEnemyCollision()) {
+
         lives--;
+
         if (lives <= 0) {
             goToLose();
         } else {
+
+
             initializePlayer();
+
             initializeEnemies(0);
         }
     }
+
 
     if (winCondition()) {
         goToGameTwo();
     }
 }
 
-
-
 void drawGameOne() {
     drawEnemies();
     drawPlayer();
     drawBomb();
 
+
     drawText(2, 2, "SCORE:");
+
     drawText(9, 2, "   ");
     drawNumber(9, 2, score);
 
     drawText(2, 4, "LIVES:");
+
     drawText(9, 4, "   ");
     drawNumber(9, 4, lives);
-}
-
-
-
-
-
-void drawSpriteNumber(int x, int y, int num) {
-    char buffer[10];
-    sprintf(buffer, "%d", num);
-
-    int i = 0;
-    while (buffer[i] != '\0') {
-        int tileIndex = buffer[i] - '0';
-
-        shadowOAM[100 + i].attr0 = ((y) & 0xFF) | (0<<14);
-        shadowOAM[100 + i].attr1 = ((x + (i * 8)) & 0x1FF);
-        shadowOAM[100 + i].attr2 = ((((0) * (32) + (tileIndex))) & 0x3FF) | (((0) & 0xF) <<12);
-
-        i++;
-    }
 }
