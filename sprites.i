@@ -1077,7 +1077,10 @@ void initializePlayer() {
 
 void initializeEnemies(int fullReset) {
     if (fullReset) {
-
+        enemy1.active = 1;
+        enemy2.active = 1;
+        enemy3.active = 1;
+        enemy4.active = 1;
     }
 
     if (enemy1.active) {

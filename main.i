@@ -548,7 +548,8 @@ void goToStart() {
 }
 
 void start() {
-    waitForVBlank();
+
+    DMANow(3, startMap, &((SB*) 0x6000000)[20], (4096) / 2);
 
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         goToGameOne();

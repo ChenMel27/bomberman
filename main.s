@@ -201,15 +201,19 @@ start:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	ldr	r3, .L20
+	mov	r3, #2048
 	push	{r4, lr}
+	mov	r0, #3
+	ldr	r2, .L20
+	ldr	r1, .L20+4
+	ldr	r4, .L20+8
 	mov	lr, pc
-	bx	r3
-	ldr	r3, .L20+4
+	bx	r4
+	ldr	r3, .L20+12
 	ldrh	r3, [r3]
 	tst	r3, #8
 	beq	.L13
-	ldr	r3, .L20+8
+	ldr	r3, .L20+16
 	ldrh	r3, [r3]
 	tst	r3, #8
 	beq	.L19
@@ -222,7 +226,9 @@ start:
 .L21:
 	.align	2
 .L20:
-	.word	waitForVBlank
+	.word	100704256
+	.word	startMap
+	.word	DMANow
 	.word	oldButtons
 	.word	buttons
 	.size	start, .-start

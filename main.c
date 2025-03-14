@@ -111,7 +111,8 @@ void goToStart() {
 }
 
 void start() {
-    waitForVBlank();
+    // Load lose screen background
+    DMANow(3, startMap, &SCREENBLOCK[20], startLen / 2);
 
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToGameOne();
