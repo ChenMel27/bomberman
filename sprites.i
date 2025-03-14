@@ -1023,9 +1023,14 @@ extern long double strtold (const char *restrict, char **restrict);
 # 336 "/opt/devkitpro/devkitARM/arm-none-eabi/include/stdlib.h" 3
 
 # 12 "sprites.c" 2
-# 20 "sprites.c"
+# 21 "sprites.c"
 
-# 20 "sprites.c"
+# 21 "sprites.c"
+int enemy1DeathTimer = 0;
+int enemy2DeathTimer = 0;
+int enemy3DeathTimer = 0;
+int enemy4DeathTimer = 0;
+
 extern int lives;
 extern OBJ_ATTR shadowOAM[128];
 int round = 1;
@@ -1180,31 +1185,18 @@ void updatePlayer() {
 }
 
 
-
-
-
 void updateEnemies() {
     static int changeTimer = 0;
     changeTimer++;
 
 
-    if (changeTimer % 30 == 0) {
-        if (enemy1.active) {
+    if (enemy1.active && enemy1DeathTimer == 0) {
+        if (changeTimer % 30 == 0) {
             if (enemy1.direction == LEFT || enemy1.direction == RIGHT)
                 enemy1.direction = (rand() % 2) ? UP : DOWN;
             else
                 enemy1.direction = (rand() % 2) ? LEFT : RIGHT;
         }
-        if (enemy2.active) {
-            if (enemy2.direction == LEFT || enemy2.direction == RIGHT)
-                enemy2.direction = (rand() % 2) ? UP : DOWN;
-            else
-                enemy2.direction = (rand() % 2) ? LEFT : RIGHT;
-        }
-    }
-
-
-    if (enemy1.active) {
         if (enemy1.direction == DOWN) {
             if (isPassablePixel(enemy1.x, enemy1.y + enemy1.height, round) &&
                 isPassablePixel(enemy1.x + enemy1.width - 1, enemy1.y + enemy1.height, round)) {
@@ -1227,9 +1219,13 @@ void updateEnemies() {
             }
         }
     }
-
-
-    if (enemy2.active) {
+    if (enemy2.active && enemy2DeathTimer == 0) {
+        if (changeTimer % 30 == 0) {
+            if (enemy2.direction == LEFT || enemy2.direction == RIGHT)
+                enemy2.direction = (rand() % 2) ? UP : DOWN;
+            else
+                enemy2.direction = (rand() % 2) ? LEFT : RIGHT;
+        }
         if (enemy2.direction == DOWN) {
             if (isPassablePixel(enemy2.x, enemy2.y + enemy2.height, round) &&
                 isPassablePixel(enemy2.x + enemy2.width - 1, enemy2.y + enemy2.height, round)) {
@@ -1256,39 +1252,61 @@ void updateEnemies() {
 
     static int enemyDelayCounter = 0;
     enemyDelayCounter++;
-
     if (enemyDelayCounter >= 3) {
         enemyDelayCounter = 0;
-
-
-        if (enemy3.active) {
-            if (player.x > enemy3.x) {
+        if (enemy3.active && enemy3DeathTimer == 0) {
+            if (player.x > enemy3.x)
                 enemy3.x++;
-            } else if (player.x < enemy3.x) {
+            else if (player.x < enemy3.x)
                 enemy3.x--;
-            }
-            if (player.y > enemy3.y) {
+            if (player.y > enemy3.y)
                 enemy3.y++;
-            } else if (player.y < enemy3.y) {
+            else if (player.y < enemy3.y)
                 enemy3.y--;
-            }
         }
-
-
-        if (enemy4.active) {
-            if (player.x > enemy4.x) {
+        if (enemy4.active && enemy4DeathTimer == 0) {
+            if (player.x > enemy4.x)
                 enemy4.x++;
-            } else if (player.x < enemy4.x) {
+            else if (player.x < enemy4.x)
                 enemy4.x--;
-            }
-            if (player.y > enemy4.y) {
+            if (player.y > enemy4.y)
                 enemy4.y++;
-            } else if (player.y < enemy4.y) {
+            else if (player.y < enemy4.y)
                 enemy4.y--;
-            }
+        }
+    }
+
+
+    if (enemy1DeathTimer > 0) {
+        enemy1DeathTimer--;
+        if (enemy1DeathTimer == 0) {
+            enemy1.active = 0;
+            shadowOAM[enemy1.oamIndex].attr0 = (2<<8);
+        }
+    }
+    if (enemy2DeathTimer > 0) {
+        enemy2DeathTimer--;
+        if (enemy2DeathTimer == 0) {
+            enemy2.active = 0;
+            shadowOAM[enemy2.oamIndex].attr0 = (2<<8);
+        }
+    }
+    if (enemy3DeathTimer > 0) {
+        enemy3DeathTimer--;
+        if (enemy3DeathTimer == 0) {
+            enemy3.active = 0;
+            shadowOAM[enemy3.oamIndex].attr0 = (2<<8);
+        }
+    }
+    if (enemy4DeathTimer > 0) {
+        enemy4DeathTimer--;
+        if (enemy4DeathTimer == 0) {
+            enemy4.active = 0;
+            shadowOAM[enemy4.oamIndex].attr0 = (2<<8);
         }
     }
 }
+
 
 
 
@@ -1320,13 +1338,18 @@ void updateBomb() {
 void drawEnemies() {
 
     if (enemy1.active) {
-        int tileRow = enemy1.currentFrame % 2;
+        int tileRow = 2;
         int tileCol = 2;
+        if (enemy1DeathTimer > 0) {
+            tileCol = 1;
+            tileRow = (enemy1DeathTimer > 15) ? 0 : 1;
+        } else {
+            tileRow = enemy1.currentFrame % 2;
+        }
         shadowOAM[enemy1.oamIndex].attr0 = ((enemy1.y) & 0xFF) | (0<<14) | (0<<8);
         shadowOAM[enemy1.oamIndex].attr1 = ((enemy1.x) & 0x1FF) | (0<<14);
-        if (enemy1.direction == RIGHT) {
+        if (enemy1.direction == RIGHT)
             shadowOAM[enemy1.oamIndex].attr1 |= (1<<12);
-        }
         shadowOAM[enemy1.oamIndex].attr2 = ((((tileCol) * (32) + (tileRow))) & 0x3FF) | (((0) & 0xF) <<12);
     } else {
         shadowOAM[enemy1.oamIndex].attr0 = (2<<8);
@@ -1334,13 +1357,18 @@ void drawEnemies() {
 
 
     if (enemy2.active) {
-        int tileRow = enemy2.currentFrame % 2;
+        int tileRow = 2;
         int tileCol = 2;
+        if (enemy2DeathTimer > 0) {
+            tileCol = 1;
+            tileRow = (enemy2DeathTimer > 15) ? 0 : 1;
+        } else {
+            tileRow = enemy2.currentFrame % 2;
+        }
         shadowOAM[enemy2.oamIndex].attr0 = ((enemy2.y) & 0xFF) | (0<<14) | (0<<8);
         shadowOAM[enemy2.oamIndex].attr1 = ((enemy2.x) & 0x1FF) | (0<<14);
-        if (enemy2.direction == RIGHT) {
+        if (enemy2.direction == RIGHT)
             shadowOAM[enemy2.oamIndex].attr1 |= (1<<12);
-        }
         shadowOAM[enemy2.oamIndex].attr2 = ((((tileCol) * (32) + (tileRow))) & 0x3FF) | (((0) & 0xF) <<12);
     } else {
         shadowOAM[enemy2.oamIndex].attr0 = (2<<8);
@@ -1348,13 +1376,18 @@ void drawEnemies() {
 
 
     if (enemy3.active) {
-        int tileRow = (enemy3.currentFrame % 2) + 2;
+        int tileRow = 2;
         int tileCol = 2;
+        if (enemy3DeathTimer > 0) {
+            tileCol = 1;
+            tileRow = (enemy3DeathTimer > 15) ? 2 : 3;
+        } else {
+            tileRow = (enemy3.currentFrame % 2) + 2;
+        }
         shadowOAM[enemy3.oamIndex].attr0 = ((enemy3.y) & 0xFF) | (0<<14) | (0<<8);
         shadowOAM[enemy3.oamIndex].attr1 = ((enemy3.x) & 0x1FF) | (0<<14);
-        if (enemy3.direction == RIGHT) {
+        if (enemy3.direction == RIGHT)
             shadowOAM[enemy3.oamIndex].attr1 |= (1<<12);
-        }
         shadowOAM[enemy3.oamIndex].attr2 = ((((tileCol) * (32) + (tileRow))) & 0x3FF) | (((0) & 0xF) <<12);
     } else {
         shadowOAM[enemy3.oamIndex].attr0 = (2<<8);
@@ -1362,18 +1395,24 @@ void drawEnemies() {
 
 
     if (enemy4.active) {
-        int tileRow = (enemy4.currentFrame % 2) + 2;
+        int tileRow = 2;
         int tileCol = 2;
+        if (enemy4DeathTimer > 0) {
+            tileCol = 1;
+            tileRow = (enemy4DeathTimer > 15) ? 2 : 3;
+        } else {
+            tileRow = (enemy4.currentFrame % 2) + 2;
+        }
         shadowOAM[enemy4.oamIndex].attr0 = ((enemy4.y) & 0xFF) | (0<<14) | (0<<8);
         shadowOAM[enemy4.oamIndex].attr1 = ((enemy4.x) & 0x1FF) | (0<<14);
-        if (enemy4.direction == RIGHT) {
+        if (enemy4.direction == RIGHT)
             shadowOAM[enemy4.oamIndex].attr1 |= (1<<12);
-        }
         shadowOAM[enemy4.oamIndex].attr2 = ((((tileCol) * (32) + (tileRow))) & 0x3FF) | (((0) & 0xF) <<12);
     } else {
         shadowOAM[enemy4.oamIndex].attr0 = (2<<8);
     }
 }
+
 
 
 
@@ -1489,26 +1528,27 @@ void handleExplosion(int bx, int by) {
         int ex = explosionTiles[i][0];
         int ey = explosionTiles[i][1];
 
-        if (enemy1.active && collision(ex, ey, 8, 8, enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
-            enemy1.active = 0;
-            shadowOAM[enemy1.oamIndex].attr0 = (2<<8);
+        if (enemy1.active && enemy1DeathTimer == 0 &&
+            collision(ex, ey, 8, 8, enemy1.x, enemy1.y, enemy1.width, enemy1.height)) {
+            enemy1DeathTimer = 50;
             score += 100;
         }
-        if (enemy2.active && collision(ex, ey, 8, 8, enemy2.x, enemy2.y, enemy2.width, enemy2.height)) {
-            enemy2.active = 0;
-            shadowOAM[enemy2.oamIndex].attr0 = (2<<8);
+        if (enemy2.active && enemy2DeathTimer == 0 &&
+            collision(ex, ey, 8, 8, enemy2.x, enemy2.y, enemy2.width, enemy2.height)) {
+            enemy2DeathTimer = 50;
             score += 100;
         }
-        if (enemy3.active && collision(ex, ey, 8, 8, enemy3.x, enemy3.y, enemy3.width, enemy3.height)) {
-            enemy3.active = 0;
-            shadowOAM[enemy3.oamIndex].attr0 = (2<<8);
+        if (enemy3.active && enemy3DeathTimer == 0 &&
+            collision(ex, ey, 8, 8, enemy3.x, enemy3.y, enemy3.width, enemy3.height)) {
+            enemy3DeathTimer = 50;
             score += 150;
         }
-        if (enemy4.active && collision(ex, ey, 8, 8, enemy4.x, enemy4.y, enemy4.width, enemy4.height)) {
-            enemy4.active = 0;
-            shadowOAM[enemy4.oamIndex].attr0 = (2<<8);
+        if (enemy4.active && enemy4DeathTimer == 0 &&
+            collision(ex, ey, 8, 8, enemy4.x, enemy4.y, enemy4.width, enemy4.height)) {
+            enemy4DeathTimer = 50;
             score += 150;
         }
+
         if (collision(ex, ey, 8, 8, player.x, player.y, player.width, player.height)) {
             lives--;
             if (lives <= 0) {
@@ -1517,9 +1557,9 @@ void handleExplosion(int bx, int by) {
                 initializePlayer();
             }
         }
-
     }
 }
+
 
 
 

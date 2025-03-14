@@ -380,7 +380,7 @@ void drawGameOne();
 
 
 
-int isPassablePixel(int x, int y);
+int isPassablePixel(int x, int y, int game);
 unsigned char colorAt(int x, int y);
 
 
@@ -400,11 +400,15 @@ void updateGameOne() {
     if (checkPlayerEnemyCollision()) {
         lives--;
         if (lives <= 0) {
-            goToGameTwo();
+            goToLose();
         } else {
             initializePlayer();
             initializeEnemies(0);
         }
+    }
+
+    if (winCondition()) {
+        goToGameTwo();
     }
 }
 

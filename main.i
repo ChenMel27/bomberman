@@ -403,7 +403,7 @@ extern unsigned short collisionMapBitmap[65536] __attribute__((section(".ewram")
 
 
 
-extern const unsigned short bg2Map[2048];
+extern unsigned short bg2Map[2048];
 # 12 "main.c" 2
 # 1 "font.h" 1
 # 21 "font.h"

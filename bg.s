@@ -107,7 +107,7 @@ bgMap:
 	.short	0
 	.short	0
 	.short	1
-	.short	0
+	.short	3
 	.short	1
 	.short	1
 	.short	0
@@ -139,7 +139,7 @@ bgMap:
 	.short	1
 	.short	0
 	.short	0
-	.short	0
+	.short	3
 	.short	2
 	.short	2
 	.short	0
@@ -171,7 +171,7 @@ bgMap:
 	.short	0
 	.short	3
 	.short	1
-	.short	0
+	.short	3
 	.short	1
 	.short	1
 	.short	0

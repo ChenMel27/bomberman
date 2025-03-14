@@ -22,45 +22,55 @@ updateGameOne:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, lr}
-	ldr	r3, .L10
+	ldr	r3, .L15
 	mov	lr, pc
 	bx	r3
-	ldr	r3, .L10+4
+	ldr	r3, .L15+4
 	mov	lr, pc
 	bx	r3
-	ldr	r3, .L10+8
+	ldr	r3, .L15+8
 	mov	lr, pc
 	bx	r3
-	ldr	r3, .L10+12
+	ldr	r3, .L15+12
 	mov	lr, pc
 	bx	r3
 	cmp	r0, #0
-	beq	.L1
-	ldr	r2, .L10+16
+	beq	.L2
+	ldr	r2, .L15+16
 	ldr	r3, [r2]
 	sub	r3, r3, #1
 	cmp	r3, #0
 	str	r3, [r2]
-	ble	.L9
-	ldr	r3, .L10+20
+	ble	.L13
+	ldr	r3, .L15+20
 	mov	lr, pc
 	bx	r3
 	mov	r0, #0
-	ldr	r3, .L10+24
+	ldr	r3, .L15+24
 	mov	lr, pc
 	bx	r3
-.L1:
+.L2:
+	ldr	r3, .L15+28
+	mov	lr, pc
+	bx	r3
+	cmp	r0, #0
+	bne	.L14
 	pop	{r4, lr}
 	bx	lr
-.L9:
-	ldr	r3, .L10+28
+.L13:
+	ldr	r3, .L15+32
+	mov	lr, pc
+	bx	r3
+	b	.L2
+.L14:
+	ldr	r3, .L15+36
 	mov	lr, pc
 	bx	r3
 	pop	{r4, lr}
 	bx	lr
-.L11:
+.L16:
 	.align	2
-.L10:
+.L15:
 	.word	updatePlayer
 	.word	updateEnemies
 	.word	updateBomb
@@ -68,6 +78,8 @@ updateGameOne:
 	.word	lives
 	.word	initializePlayer
 	.word	initializeEnemies
+	.word	winCondition
+	.word	goToLose
 	.word	goToGameTwo
 	.size	updateGameOne, .-updateGameOne
 	.section	.rodata.str1.4,"aMS",%progbits,1
@@ -89,34 +101,34 @@ drawGameOne:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
 	push	{r4, r5, r6, lr}
-	ldr	r3, .L14
+	ldr	r3, .L19
 	mov	lr, pc
 	bx	r3
-	ldr	r3, .L14+4
+	ldr	r3, .L19+4
 	mov	lr, pc
 	bx	r3
-	ldr	r3, .L14+8
+	ldr	r3, .L19+8
 	mov	lr, pc
 	bx	r3
 	mov	r1, #2
-	ldr	r5, .L14+12
+	ldr	r5, .L19+12
 	mov	r0, r1
-	ldr	r2, .L14+16
+	ldr	r2, .L19+16
 	mov	lr, pc
 	bx	r5
-	ldr	r3, .L14+20
-	ldr	r4, .L14+24
+	ldr	r3, .L19+20
+	ldr	r4, .L19+24
 	ldr	r2, [r3]
 	mov	r1, #2
 	mov	r0, #9
 	mov	lr, pc
 	bx	r4
 	mov	r1, #4
-	ldr	r2, .L14+28
+	ldr	r2, .L19+28
 	mov	r0, #2
 	mov	lr, pc
 	bx	r5
-	ldr	r3, .L14+32
+	ldr	r3, .L19+32
 	mov	r1, #4
 	mov	r0, #9
 	ldr	r2, [r3]
@@ -124,9 +136,9 @@ drawGameOne:
 	bx	r4
 	pop	{r4, r5, r6, lr}
 	bx	lr
-.L15:
+.L20:
 	.align	2
-.L14:
+.L19:
 	.word	drawEnemies
 	.word	drawPlayer
 	.word	drawBomb
@@ -156,23 +168,23 @@ drawSpriteNumber:
 	sub	sp, sp, #16
 	mov	r5, r0
 	mov	r4, r1
-	ldr	r6, .L22
-	ldr	r1, .L22+4
+	ldr	r6, .L27
+	ldr	r1, .L27+4
 	add	r0, sp, #4
 	mov	lr, pc
 	bx	r6
 	ldrb	lr, [sp, #4]	@ zero_extendqisi2
 	cmp	lr, #0
-	beq	.L16
+	beq	.L21
 	lsl	r0, r5, #16
-	ldr	r2, .L22+8
+	ldr	r2, .L27+8
 	lsr	r0, r0, #16
-	ldr	r6, .L22+12
-	ldr	r5, .L22+16
+	ldr	r6, .L27+12
+	ldr	r5, .L27+16
 	and	r1, r4, #255
 	sub	r0, r0, r2
 	add	r4, sp, #5
-.L18:
+.L23:
 	mov	r3, r2
 	sub	ip, lr, #48
 	strh	r1, [r3], r0	@ movhi
@@ -183,15 +195,15 @@ drawSpriteNumber:
 	strh	ip, [r2, #4]	@ movhi
 	strh	r3, [r2, #2]	@ movhi
 	add	r2, r2, #8
-	bne	.L18
-.L16:
+	bne	.L23
+.L21:
 	add	sp, sp, #16
 	@ sp needed
 	pop	{r4, r5, r6, lr}
 	bx	lr
-.L23:
+.L28:
 	.align	2
-.L22:
+.L27:
 	.word	sprintf
 	.word	.LC2
 	.word	shadowOAM+800

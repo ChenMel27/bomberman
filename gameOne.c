@@ -16,11 +16,15 @@ void updateGameOne() {
     if (checkPlayerEnemyCollision()) {
         lives--;  // Decrease lives
         if (lives <= 0) {
-            goToGameTwo();  // Transition to Game Two instead of Lose screen
+            goToLose();
         } else {
             initializePlayer();  // Respawn player
             initializeEnemies(0);  // Only reset active enemies
         }
+    }
+
+    if (winCondition()) {
+        goToGameTwo();
     }
 }
 

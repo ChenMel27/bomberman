@@ -23,6 +23,10 @@ void updateGameTwo() {
             initializeEnemies(0);
         }
     }
+
+    if (winCondition()) {
+        goToWin();
+    }
 }
 
 void drawGameTwo() {

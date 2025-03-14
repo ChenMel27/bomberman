@@ -96,10 +96,12 @@ int checkCollisionSoftBlock(int worldX, int worldY) {
 }
 
 int checkCollisionWin(int worldX, int worldY) {
-    return (getTileAtWorld(worldX, worldY) == 0x0000) ||
-           (getTileAtWorld(worldX + SPRITE_WIDTH - 1, worldY) == 0x0000) ||
-           (getTileAtWorld(worldX, worldY + SPRITE_HEIGHT - 1) == 0x0000) ||
-           (getTileAtWorld(worldX + SPRITE_WIDTH - 1, worldY + SPRITE_HEIGHT - 1) == 0x0000);
+    int enemiesGone = (enemy1.active == 0 && enemy2.active == 0
+        && enemy3.active == 0 && enemy4.active == 0) ? 1 : 0;
+    return enemiesGone & ((getTileAtWorld(worldX, worldY) == 0x0002) ||
+           (getTileAtWorld(worldX + SPRITE_WIDTH - 1, worldY) == 0x0002) ||
+           (getTileAtWorld(worldX, worldY + SPRITE_HEIGHT - 1) == 0x0002) ||
+           (getTileAtWorld(worldX + SPRITE_WIDTH - 1, worldY + SPRITE_HEIGHT - 1) == 0x0002));
 }
 
 void destroySoftBlockAt(int worldX, int worldY) {
