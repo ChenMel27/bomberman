@@ -215,8 +215,8 @@ void lose() {
     hideSprites();
     
     // Hide text
-    drawText(2, 2, "         ");
-    drawText(2, 4, "         ");
+    drawText(2, 2, "           ");
+    drawText(2, 4, "           ");
 
     // Update OAM after hide sprites
     waitForVBlank();

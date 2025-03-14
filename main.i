@@ -659,8 +659,8 @@ void lose() {
     hideSprites();
 
 
-    drawText(2, 2, "         ");
-    drawText(2, 4, "         ");
+    drawText(2, 2, "           ");
+    drawText(2, 4, "           ");
 
 
     waitForVBlank();

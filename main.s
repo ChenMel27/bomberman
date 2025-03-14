@@ -506,7 +506,7 @@ goToLose:
 	.section	.rodata.str1.4
 	.align	2
 .LC1:
-	.ascii	"         \000"
+	.ascii	"           \000"
 	.text
 	.align	2
 	.global	lose
@@ -596,11 +596,6 @@ goToWin:
 .L76:
 	.word	state
 	.size	goToWin, .-goToWin
-	.section	.rodata.str1.4
-	.align	2
-.LC2:
-	.ascii	"           \000"
-	.text
 	.align	2
 	.global	win
 	.syntax unified
@@ -661,7 +656,7 @@ win:
 	.word	winnerMap
 	.word	DMANow
 	.word	hideSprites
-	.word	.LC2
+	.word	.LC1
 	.word	drawText
 	.word	waitForVBlank
 	.word	shadowOAM

@@ -210,22 +210,25 @@ void updateEnemies() {
         }
         if (enemy1.direction == DOWN) {
             if (isPassablePixel(enemy1.x, enemy1.y + enemy1.height, round) &&
-                isPassablePixel(enemy1.x + enemy1.width - 1, enemy1.y + enemy1.height, round)) {
+                isPassablePixel(enemy1.x + enemy1.width - 1, enemy1.y + enemy1.height, round)
+                && enemy1.y + enemy1.width < 160) {
                 enemy1.y++;
             }
         } else if (enemy1.direction == UP) {
             if (isPassablePixel(enemy1.x, enemy1.y - 1, round) &&
-                isPassablePixel(enemy1.x + enemy1.width - 1, enemy1.y - 1, round)) {
+                isPassablePixel(enemy1.x + enemy1.width - 1, enemy1.y - 1, round) && enemy1.y > 0) {
                 enemy1.y--;
             }
         } else if (enemy1.direction == RIGHT) {
             if (isPassablePixel(enemy1.x + enemy1.width, enemy1.y, round) &&
-                isPassablePixel(enemy1.x + enemy1.width, enemy1.y + enemy1.height - 1, round)) {
+                isPassablePixel(enemy1.x + enemy1.width, enemy1.y + enemy1.height - 1, round)
+                && enemy1.x + enemy1.width < 240) {
                 enemy1.x++;
             }
         } else if (enemy1.direction == LEFT) {
             if (isPassablePixel(enemy1.x - 1, enemy1.y, round) &&
-                isPassablePixel(enemy1.x - 1, enemy1.y + enemy1.height - 1, round)) {
+                isPassablePixel(enemy1.x - 1, enemy1.y + enemy1.height - 1, round)
+                && enemy1.x > 0) {
                 enemy1.x--;
             }
         }
@@ -244,22 +247,26 @@ void updateEnemies() {
         }
         if (enemy2.direction == DOWN) {
             if (isPassablePixel(enemy2.x, enemy2.y + enemy2.height, round) &&
-                isPassablePixel(enemy2.x + enemy2.width - 1, enemy2.y + enemy2.height, round)) {
+                isPassablePixel(enemy2.x + enemy2.width - 1, enemy2.y + enemy2.height, round)
+                && enemy1.y + enemy1.width < 160) {
                 enemy2.y++;
             }
         } else if (enemy2.direction == UP) {
             if (isPassablePixel(enemy2.x, enemy2.y - 1, round) &&
-                isPassablePixel(enemy2.x + enemy2.width - 1, enemy2.y - 1, round)) {
+                isPassablePixel(enemy2.x + enemy2.width - 1, enemy2.y - 1, round)
+                && enemy1.y > 0) {
                 enemy2.y--;
             }
         } else if (enemy2.direction == RIGHT) {
             if (isPassablePixel(enemy2.x + enemy2.width, enemy2.y, round) &&
-                isPassablePixel(enemy2.x + enemy2.width, enemy2.y + enemy2.height - 1, round)) {
+                isPassablePixel(enemy2.x + enemy2.width, enemy2.y + enemy2.height - 1, round)
+                && enemy1.x + enemy1.height < 240) {
                 enemy2.x++;
             }
         } else if (enemy2.direction == LEFT) {
             if (isPassablePixel(enemy2.x - 1, enemy2.y, round) &&
-                isPassablePixel(enemy2.x - 1, enemy2.y + enemy2.height - 1, round)) {
+                isPassablePixel(enemy2.x - 1, enemy2.y + enemy2.height - 1, round)
+                && enemy2.x > 0) {
                 enemy2.x--;
             }
         }
