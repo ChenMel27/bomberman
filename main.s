@@ -420,14 +420,19 @@ gameTwo:
 	str	r3, [r2]
 	blgt	updateTimer.part.0
 .L44:
+	ldr	r4, .L50+8
+	mov	r1, #17
+	mov	r0, #1
+	ldr	r2, .L50+12
+	mov	lr, pc
+	bx	r4
 	mov	r1, #18
 	mov	r0, #1
-	ldr	r2, .L50+8
-	ldr	r4, .L50+12
+	ldr	r2, .L50+12
 	mov	lr, pc
 	bx	r4
 	mov	r1, #19
-	ldr	r2, .L50+8
+	ldr	r2, .L50+12
 	mov	r0, #1
 	mov	lr, pc
 	bx	r4
@@ -455,8 +460,8 @@ gameTwo:
 .L50:
 	.word	updateGameTwo
 	.word	frameCounter
-	.word	.LC0
 	.word	drawText
+	.word	.LC0
 	.word	drawGameTwo
 	.word	waitForVBlank
 	.word	oldButtons
@@ -577,23 +582,28 @@ lose:
 	ldr	r2, .L79
 	ldr	r1, .L79+4
 	mov	r3, #2048
-	ldr	r4, .L79+8
+	ldr	r5, .L79+8
 	mov	lr, pc
-	bx	r4
+	bx	r5
 	ldr	r3, .L79+12
 	mov	lr, pc
 	bx	r3
-	ldr	r5, .L79+16
+	ldr	r4, .L79+16
+	mov	r1, #17
+	mov	r0, #1
+	ldr	r2, .L79+20
+	mov	lr, pc
+	bx	r4
 	mov	r1, #18
 	mov	r0, #1
 	ldr	r2, .L79+20
 	mov	lr, pc
-	bx	r5
+	bx	r4
 	mov	r1, #19
 	mov	r0, #1
 	ldr	r2, .L79+20
 	mov	lr, pc
-	bx	r5
+	bx	r4
 	ldr	r3, .L79+24
 	mov	lr, pc
 	bx	r3
@@ -602,7 +612,7 @@ lose:
 	mov	r0, #3
 	ldr	r1, .L79+28
 	mov	lr, pc
-	bx	r4
+	bx	r5
 	ldr	r3, .L79+32
 	ldrh	r3, [r3]
 	tst	r3, #8
@@ -665,23 +675,28 @@ win:
 	ldr	r2, .L90
 	ldr	r1, .L90+4
 	mov	r3, #2048
-	ldr	r4, .L90+8
+	ldr	r5, .L90+8
 	mov	lr, pc
-	bx	r4
+	bx	r5
 	ldr	r3, .L90+12
 	mov	lr, pc
 	bx	r3
-	ldr	r5, .L90+16
+	ldr	r4, .L90+16
+	mov	r1, #17
+	mov	r0, #1
+	ldr	r2, .L90+20
+	mov	lr, pc
+	bx	r4
 	mov	r1, #18
 	mov	r0, #1
 	ldr	r2, .L90+20
 	mov	lr, pc
-	bx	r5
+	bx	r4
 	mov	r1, #19
 	mov	r0, #1
 	ldr	r2, .L90+20
 	mov	lr, pc
-	bx	r5
+	bx	r4
 	ldr	r3, .L90+24
 	mov	lr, pc
 	bx	r3
@@ -690,7 +705,7 @@ win:
 	mov	r0, #3
 	ldr	r1, .L90+28
 	mov	lr, pc
-	bx	r4
+	bx	r5
 	ldr	r3, .L90+32
 	ldrh	r3, [r3]
 	tst	r3, #8

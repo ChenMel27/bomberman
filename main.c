@@ -175,6 +175,7 @@ void goToGameTwo() {
 void gameTwo() {
     updateGameTwo();
     updateTimer();
+    drawText(1, 17, "          ");
     drawText(1, 18, "          ");
     drawText(1, 19, "          ");
     drawGameTwo();
@@ -216,6 +217,7 @@ void lose() {
     hideSprites();
     
     // Hide text
+    drawText(1, 17, "          ");
     drawText(1, 18, "          ");
     drawText(1, 19, "          ");
 
@@ -241,6 +243,7 @@ void win() {
     hideSprites();
         
     // Hide text
+    drawText(1, 17, "          ");
     drawText(1, 18, "          ");
     drawText(1, 19, "          ");
     

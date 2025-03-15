@@ -46,10 +46,11 @@ isPassablePixel:
 .L9:
 	ldr	r3, .L10+4
 	add	r0, r0, r1, lsl #9
-	ldrb	r0, [r0, r3]	@ zero_extendqisi2
-	cmp	r0, #1
-	movls	r0, #0
-	movhi	r0, #1
+	ldrb	r3, [r0, r3]	@ zero_extendqisi2
+	subs	r0, r3, #3
+	movne	r0, #1
+	cmp	r3, #0
+	moveq	r0, #0
 	bx	lr
 .L11:
 	.align	2
@@ -771,32 +772,31 @@ destroySoftBlockAt:
 	add	r3, r4, r5, lsl #5
 	beq	.L164
 	ldr	r1, .L165+8
-	lsl	r0, r3, #1
-	ldrh	r6, [r1, r0]
-	cmp	r6, #3
+	lsl	r2, r3, #1
+	ldrh	r0, [r1, r2]
+	cmp	r0, #3
 	bne	.L153
-	strh	ip, [r1, r0]	@ movhi
+	strh	ip, [r1, r2]	@ movhi
 	mov	r3, #2048
-	mov	r0, r6
 	ldr	r2, .L165+12
-	ldr	r7, .L165+16
+	ldr	r6, .L165+16
 	mov	lr, pc
-	bx	r7
-	mov	r0, r6
-	ldr	r3, .L165+20
-	lsl	r2, r5, #12
-	add	r5, r3, r5, lsl #12
-	add	r4, r5, r4, lsl #3
-	add	r1, r2, #4096
+	bx	r6
+	mov	r2, #2
+	ldr	r0, .L165+20
+	lsl	r1, r5, #12
+	add	r0, r0, r5, lsl #12
+	add	r0, r0, r4, lsl #3
+	add	ip, r1, #4096
 .L158:
-	sub	r3, r4, #8
+	sub	r3, r0, #8
 .L159:
-	strb	r0, [r3], #1
-	cmp	r3, r4
+	strb	r2, [r3], #1
+	cmp	r3, r0
 	bne	.L159
-	add	r2, r2, #512
-	cmp	r2, r1
-	add	r4, r4, #512
+	add	r1, r1, #512
+	cmp	r1, ip
+	add	r0, r0, #512
 	bne	.L158
 	b	.L153
 .L164:

@@ -222,7 +222,7 @@ int isPassablePixel(int x, int y, int game) {
 
     } else if (game == 2) {
         if(x < 0 || x >= 512 || y < 0 || y >= 256) return 0;
-        return (colorAt2(x, y) != 0 && colorAt2(x, y) != 1);
+        return (colorAt2(x, y) != 0 && colorAt2(x, y) != 3);
     }
 }
 
@@ -324,7 +324,7 @@ void destroySoftBlockAt(int worldX, int worldY) {
                 for (int x = 0; x < 8; x++) {
                     int pixelX = startX + x;
                     int pixelY = startY + y;
-                    ((unsigned char *)collisionMap2Bitmap)[((pixelY) * (512) + (pixelX))] = 3;
+                    ((unsigned char *)collisionMap2Bitmap)[((pixelY) * (512) + (pixelX))] = 2;
                 }
             }
         }
