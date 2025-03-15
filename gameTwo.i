@@ -375,9 +375,7 @@ extern const unsigned short spriteTiles[16384];
 extern const unsigned short spritePal[256];
 # 8 "gameTwo.c" 2
 # 1 "gameOne.h" 1
-
-
-
+# 11 "gameOne.h"
 extern int score;
 extern int lives;
 
@@ -391,6 +389,7 @@ void drawGameOne();
 
 int isPassablePixel(int x, int y, int game);
 unsigned char colorAt(int x, int y);
+unsigned char colorAt2(int x, int y);
 
 
 unsigned short getTileAtWorld(int worldX, int worldY);
@@ -399,6 +398,13 @@ int checkCollisionDestructableWall(int worldX, int worldY);
 int checkCollisionSoftBlock(int worldX, int worldY);
 int checkCollisionWin(int worldX, int worldY);
 void destroySoftBlockAt(int worldX, int worldY);
+
+
+void drawText(int tileX, int tileY, char *text);
+void drawNumber(int tileX, int tileY, int num);
+
+
+int checkPlayerEnemyCollision();
 # 10 "gameTwo.c" 2
 
 void updateGameTwo() {
@@ -432,11 +438,14 @@ void drawGameTwo() {
     drawPlayer();
     drawBomb();
 
-    drawText(2, 2, "SCORE:");
-    drawText(17, 2, "   ");
-    drawNumber(9, 2, score);
 
-    drawText(2, 4, "LIVES:");
-    drawText(17, 4, "   ");
-    drawNumber(9, 4, lives);
+    drawText(1, 18, "SCORE:");
+
+    drawText(9, 18, "   ");
+    drawNumber(9, 18, score);
+
+    drawText(1, 19, "LIVES:");
+
+    drawText(9, 19, "   ");
+    drawNumber(9, 19, lives);
 }

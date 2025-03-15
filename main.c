@@ -174,8 +174,8 @@ void goToGameTwo() {
 void gameTwo() {
     updateGameTwo();
     // Clear leftover text
-    drawText(2, 2, "          ");
-    drawText(2, 4, "          ");
+    drawText(1, 18, "          ");
+    drawText(1, 19, "          ");
     drawGameTwo();
     waitForVBlank();
 
@@ -215,8 +215,8 @@ void lose() {
     hideSprites();
     
     // Hide text
-    drawText(2, 2, "           ");
-    drawText(2, 4, "           ");
+    drawText(1, 18, "          ");
+    drawText(1, 19, "          ");
 
     // Update OAM after hide sprites
     waitForVBlank();
@@ -240,8 +240,8 @@ void win() {
     hideSprites();
         
     // Hide text
-    drawText(2, 2, "           ");
-    drawText(2, 4, "           ");
+    drawText(1, 18, "          ");
+    drawText(1, 19, "          ");
     
     // Upd. OAM
     waitForVBlank();

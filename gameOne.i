@@ -389,6 +389,7 @@ void drawGameOne();
 
 int isPassablePixel(int x, int y, int game);
 unsigned char colorAt(int x, int y);
+unsigned char colorAt2(int x, int y);
 
 
 unsigned short getTileAtWorld(int worldX, int worldY);
@@ -397,6 +398,13 @@ int checkCollisionDestructableWall(int worldX, int worldY);
 int checkCollisionSoftBlock(int worldX, int worldY);
 int checkCollisionWin(int worldX, int worldY);
 void destroySoftBlockAt(int worldX, int worldY);
+
+
+void drawText(int tileX, int tileY, char *text);
+void drawNumber(int tileX, int tileY, int num);
+
+
+int checkPlayerEnemyCollision();
 # 10 "gameOne.c" 2
 
 void updateGameOne() {
@@ -432,13 +440,13 @@ void drawGameOne() {
     drawBomb();
 
 
-    drawText(2, 2, "SCORE:");
+    drawText(1, 18, "SCORE:");
 
-    drawText(9, 2, "   ");
-    drawNumber(9, 2, score);
+    drawText(9, 18, "   ");
+    drawNumber(9, 18, score);
 
-    drawText(2, 4, "LIVES:");
+    drawText(1, 19, "LIVES:");
 
-    drawText(9, 4, "   ");
-    drawNumber(9, 4, lives);
+    drawText(9, 19, "   ");
+    drawNumber(9, 19, lives);
 }

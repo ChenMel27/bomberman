@@ -618,8 +618,8 @@ void goToGameTwo() {
 void gameTwo() {
     updateGameTwo();
 
-    drawText(2, 2, "          ");
-    drawText(2, 4, "          ");
+    drawText(1, 18, "          ");
+    drawText(1, 19, "          ");
     drawGameTwo();
     waitForVBlank();
 
@@ -659,8 +659,8 @@ void lose() {
     hideSprites();
 
 
-    drawText(2, 2, "           ");
-    drawText(2, 4, "           ");
+    drawText(1, 18, "          ");
+    drawText(1, 19, "          ");
 
 
     waitForVBlank();
@@ -684,8 +684,8 @@ void win() {
     hideSprites();
 
 
-    drawText(2, 2, "           ");
-    drawText(2, 4, "           ");
+    drawText(1, 18, "          ");
+    drawText(1, 19, "          ");
 
 
     waitForVBlank();

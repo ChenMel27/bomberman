@@ -600,7 +600,7 @@ void handleExplosion(int bx, int by) {
 
 
 
-// Hides all sprites in the shadowOAM; must DMA shadowOAM into OAM after calling this function.
+// Hides all sprites in the shadowOAM (*need to DMA into OAM)
 void hideSprites() {
     for (int i = 0; i < 128; i++) {
         shadowOAM[i].attr0 = ATTR0_HIDE;

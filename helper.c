@@ -175,7 +175,7 @@ void drawText(int tileX, int tileY, char *text) {
         }
         // Also, this for the score
         else if (c == ':') {
-            tileIndex = 26; 
+            tileIndex = 25; 
         }
 
         // Use the 0th pallette to access the font using bit shift of 12 to align

@@ -110,40 +110,40 @@ drawGameOne:
 	ldr	r3, .L19+4
 	mov	lr, pc
 	bx	r3
-	ldr	r3, .L19+8
+	ldr	r6, .L19+8
+	ldr	r3, .L19+12
 	mov	lr, pc
 	bx	r3
-	mov	r1, #2
-	ldr	r6, .L19+12
 	ldr	r4, .L19+16
-	mov	r0, r1
+	mov	r1, #18
+	mov	r0, #1
 	ldr	r2, .L19+20
 	mov	lr, pc
 	bx	r4
 	mov	r2, r6
-	mov	r1, #2
+	mov	r1, #18
 	mov	r0, #9
 	mov	lr, pc
 	bx	r4
 	ldr	r3, .L19+24
 	ldr	r5, .L19+28
 	ldr	r2, [r3]
-	mov	r1, #2
+	mov	r1, #18
 	mov	r0, #9
 	mov	lr, pc
 	bx	r5
-	mov	r1, #4
+	mov	r1, #19
+	mov	r0, #1
 	ldr	r2, .L19+32
-	mov	r0, #2
 	mov	lr, pc
 	bx	r4
 	mov	r2, r6
-	mov	r1, #4
+	mov	r1, #19
 	mov	r0, #9
 	mov	lr, pc
 	bx	r4
 	ldr	r3, .L19+36
-	mov	r1, #4
+	mov	r1, #19
 	mov	r0, #9
 	ldr	r2, [r3]
 	mov	lr, pc
@@ -155,8 +155,8 @@ drawGameOne:
 .L19:
 	.word	drawEnemies
 	.word	drawPlayer
-	.word	drawBomb
 	.word	.LC1
+	.word	drawBomb
 	.word	drawText
 	.word	.LC0
 	.word	score

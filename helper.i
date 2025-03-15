@@ -352,7 +352,7 @@ void drawText(int tileX, int tileY, char *text) {
         }
 
         else if (c == ':') {
-            tileIndex = 26;
+            tileIndex = 25;
         }
 
 

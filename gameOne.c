@@ -41,13 +41,13 @@ void drawGameOne() {
     drawBomb();
 
     // Display score and lives in top left
-    drawText(2, 2, "SCORE:");
+    drawText(1, 18, "SCORE:");
     // Clear
-    drawText(9, 2, "   ");
-    drawNumber(9, 2, score);
+    drawText(9, 18, "   ");
+    drawNumber(9, 18, score);
 
-    drawText(2, 4, "LIVES:");
+    drawText(1, 19, "LIVES:");
     // Clear
-    drawText(9, 4, "   ");
-    drawNumber(9, 4, lives);
+    drawText(9, 19, "   ");
+    drawNumber(9, 19, lives);
 }

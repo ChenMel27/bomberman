@@ -362,15 +362,15 @@ gameTwo:
 	ldr	r3, .L44
 	mov	lr, pc
 	bx	r3
-	mov	r1, #2
-	ldr	r2, .L44+4
-	mov	r0, r1
-	ldr	r4, .L44+8
+	ldr	r4, .L44+4
+	mov	r1, #18
+	mov	r0, #1
+	ldr	r2, .L44+8
 	mov	lr, pc
 	bx	r4
-	mov	r1, #4
-	ldr	r2, .L44+4
-	mov	r0, #2
+	mov	r1, #19
+	ldr	r2, .L44+8
+	mov	r0, #1
 	mov	lr, pc
 	bx	r4
 	ldr	r3, .L44+12
@@ -396,8 +396,8 @@ gameTwo:
 	.align	2
 .L44:
 	.word	updateGameTwo
-	.word	.LC0
 	.word	drawText
+	.word	.LC0
 	.word	drawGameTwo
 	.word	waitForVBlank
 	.word	oldButtons
@@ -503,11 +503,6 @@ goToLose:
 .L65:
 	.word	state
 	.size	goToLose, .-goToLose
-	.section	.rodata.str1.4
-	.align	2
-.LC1:
-	.ascii	"           \000"
-	.text
 	.align	2
 	.global	lose
 	.syntax unified
@@ -529,15 +524,15 @@ lose:
 	ldr	r3, .L73+12
 	mov	lr, pc
 	bx	r3
-	mov	r1, #2
-	ldr	r2, .L73+16
-	mov	r0, r1
-	ldr	r5, .L73+20
+	ldr	r5, .L73+16
+	mov	r1, #18
+	mov	r0, #1
+	ldr	r2, .L73+20
 	mov	lr, pc
 	bx	r5
-	mov	r1, #4
-	mov	r0, #2
-	ldr	r2, .L73+16
+	mov	r1, #19
+	mov	r0, #1
+	ldr	r2, .L73+20
 	mov	lr, pc
 	bx	r5
 	ldr	r3, .L73+24
@@ -568,8 +563,8 @@ lose:
 	.word	loserMap
 	.word	DMANow
 	.word	hideSprites
-	.word	.LC1
 	.word	drawText
+	.word	.LC0
 	.word	waitForVBlank
 	.word	shadowOAM
 	.word	oldButtons
@@ -617,15 +612,15 @@ win:
 	ldr	r3, .L84+12
 	mov	lr, pc
 	bx	r3
-	mov	r1, #2
-	ldr	r2, .L84+16
-	mov	r0, r1
-	ldr	r5, .L84+20
+	ldr	r5, .L84+16
+	mov	r1, #18
+	mov	r0, #1
+	ldr	r2, .L84+20
 	mov	lr, pc
 	bx	r5
-	mov	r1, #4
-	mov	r0, #2
-	ldr	r2, .L84+16
+	mov	r1, #19
+	mov	r0, #1
+	ldr	r2, .L84+20
 	mov	lr, pc
 	bx	r5
 	ldr	r3, .L84+24
@@ -656,8 +651,8 @@ win:
 	.word	winnerMap
 	.word	DMANow
 	.word	hideSprites
-	.word	.LC1
 	.word	drawText
+	.word	.LC0
 	.word	waitForVBlank
 	.word	shadowOAM
 	.word	oldButtons

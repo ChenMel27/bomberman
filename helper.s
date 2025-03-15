@@ -895,7 +895,7 @@ drawText:
 .L186:
 	.align	2
 .L185:
-	.word	4122
+	.word	4121
 	.word	100720640
 	.size	drawText, .-drawText
 	.section	.rodata.str1.4,"aMS",%progbits,1
