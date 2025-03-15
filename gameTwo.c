@@ -33,20 +33,21 @@ void updateGameTwo() {
     }
 }
 
-// Duplicate function in game one
 void drawGameTwo() {
     drawEnemies();
     drawPlayer();
     drawBomb();
 
-    // Display score and lives in top left
+    // Display timer, score, and lives
+    drawText(1, 17, "TIME:");
+    drawText(7, 17, "   ");
+    drawNumber(7, 17, timer);
+
     drawText(1, 18, "SCORE:");
-    // Clear
     drawText(9, 18, "   ");
     drawNumber(9, 18, score);
 
     drawText(1, 19, "LIVES:");
-    // Clear
     drawText(9, 19, "   ");
     drawNumber(9, 19, lives);
 }

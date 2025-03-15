@@ -82,12 +82,13 @@ extern const unsigned short spritePal[256];
 # 11 "gameOne.h"
 extern int score;
 extern int lives;
+extern int timer;
 
 void updateGameOne();
 void drawGameOne();
 # 7 "helper.c" 2
 # 1 "collisionMap.h" 1
-# 19 "collisionMap.h"
+# 20 "collisionMap.h"
 extern unsigned short collisionMapBitmap[65536] __attribute__((section(".ewram")));
 # 8 "helper.c" 2
 # 1 "collisionMap2.h" 1
@@ -217,7 +218,7 @@ int isPassablePixel(int x, int y, int game) {
 
     if (game == 1) {
         if(x < 0 || x >= 512 || y < 0 || y >= 256) return 0;
-        return (colorAt(x, y) != 0 && colorAt(x, y) != 1);
+        return (colorAt(x, y) != 0 && colorAt(x, y) != 2);
 
     } else if (game == 2) {
         if(x < 0 || x >= 512 || y < 0 || y >= 256) return 0;

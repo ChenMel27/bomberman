@@ -85,12 +85,15 @@ updateGameOne:
 	.section	.rodata.str1.4,"aMS",%progbits,1
 	.align	2
 .LC0:
-	.ascii	"SCORE:\000"
+	.ascii	"TIME:\000"
 	.align	2
 .LC1:
 	.ascii	"   \000"
 	.align	2
 .LC2:
+	.ascii	"SCORE:\000"
+	.align	2
+.LC3:
 	.ascii	"LIVES:\000"
 	.text
 	.align	2
@@ -115,26 +118,42 @@ drawGameOne:
 	mov	lr, pc
 	bx	r3
 	ldr	r4, .L19+16
-	mov	r1, #18
+	mov	r1, #17
 	mov	r0, #1
 	ldr	r2, .L19+20
 	mov	lr, pc
 	bx	r4
 	mov	r2, r6
-	mov	r1, #18
-	mov	r0, #9
+	mov	r1, #17
+	mov	r0, #7
 	mov	lr, pc
 	bx	r4
 	ldr	r3, .L19+24
 	ldr	r5, .L19+28
 	ldr	r2, [r3]
+	mov	r1, #17
+	mov	r0, #7
+	mov	lr, pc
+	bx	r5
 	mov	r1, #18
+	mov	r0, #1
+	ldr	r2, .L19+32
+	mov	lr, pc
+	bx	r4
+	mov	r2, r6
+	mov	r1, #18
+	mov	r0, #9
+	mov	lr, pc
+	bx	r4
+	ldr	r3, .L19+36
+	mov	r1, #18
+	ldr	r2, [r3]
 	mov	r0, #9
 	mov	lr, pc
 	bx	r5
 	mov	r1, #19
 	mov	r0, #1
-	ldr	r2, .L19+32
+	ldr	r2, .L19+40
 	mov	lr, pc
 	bx	r4
 	mov	r2, r6
@@ -142,7 +161,7 @@ drawGameOne:
 	mov	r0, #9
 	mov	lr, pc
 	bx	r4
-	ldr	r3, .L19+36
+	ldr	r3, .L19+44
 	mov	r1, #19
 	mov	r0, #9
 	ldr	r2, [r3]
@@ -159,9 +178,11 @@ drawGameOne:
 	.word	drawBomb
 	.word	drawText
 	.word	.LC0
-	.word	score
+	.word	timer
 	.word	drawNumber
 	.word	.LC2
+	.word	score
+	.word	.LC3
 	.word	lives
 	.size	drawGameOne, .-drawGameOne
 	.ident	"GCC: (devkitARM release 53) 9.1.0"

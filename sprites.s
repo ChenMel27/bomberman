@@ -1789,9 +1789,9 @@ bomb:
 	.size	playerImmuneToBombs, 4
 playerImmuneToBombs:
 	.space	4
-	.type	changeTimer.4690, %object
-	.size	changeTimer.4690, 4
-changeTimer.4690:
+	.type	changeTimer.4691, %object
+	.size	changeTimer.4691, 4
+changeTimer.4691:
 	.space	4
 	.type	enemy1DeathTimer, %object
 	.size	enemy1DeathTimer, 4
@@ -1801,9 +1801,9 @@ enemy1DeathTimer:
 	.size	enemy2DeathTimer, 4
 enemy2DeathTimer:
 	.space	4
-	.type	enemyDelayCounter.4691, %object
-	.size	enemyDelayCounter.4691, 4
-enemyDelayCounter.4691:
+	.type	enemyDelayCounter.4692, %object
+	.size	enemyDelayCounter.4692, 4
+enemyDelayCounter.4692:
 	.space	4
 	.type	enemy3DeathTimer, %object
 	.size	enemy3DeathTimer, 4

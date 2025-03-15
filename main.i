@@ -378,6 +378,7 @@ extern const unsigned short spritePal[256];
 # 11 "gameOne.h"
 extern int score;
 extern int lives;
+extern int timer;
 
 void updateGameOne();
 void drawGameOne();
@@ -407,7 +408,7 @@ void drawNumber(int tileX, int tileY, int num);
 int checkPlayerEnemyCollision();
 # 10 "main.c" 2
 # 1 "collisionMap.h" 1
-# 19 "collisionMap.h"
+# 20 "collisionMap.h"
 extern unsigned short collisionMapBitmap[65536] __attribute__((section(".ewram")));
 # 11 "main.c" 2
 # 1 "bg2.h" 1
@@ -483,6 +484,10 @@ int state;
 
 int score = 0;
 int lives = 3;
+
+int timer;
+int frameCounter;
+
 
 int paused = 0;
 
@@ -578,15 +583,17 @@ void goToGameOne() {
         initializePlayer();
         lives = 3;
         round = 1;
+        timer = 60;
+        frameCounter = 0;
     }
 }
 
 
 void gameOne() {
     updateGameOne();
+    updateTimer();
     drawGameOne();
     waitForVBlank();
-
 
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
         goToPause();
@@ -601,23 +608,18 @@ void goToGameTwo() {
         score = 0;
         lives = 3;
         round = 2;
-
-
         playerImmuneToBombs = 0;
-
-
         initializeEnemies(1);
         initializePlayer();
+        timer = 60;
+        frameCounter = 0;
     }
     state = GAMETWO;
 }
 
-
-
-
 void gameTwo() {
     updateGameTwo();
-
+    updateTimer();
     drawText(1, 18, "          ");
     drawText(1, 19, "          ");
     drawGameTwo();
@@ -693,5 +695,16 @@ void win() {
 
     if ((!(~(oldButtons) & ((1<<3))) && (~(buttons) & ((1<<3))))) {
             goToStart();
+    }
+}
+
+void updateTimer() {
+    frameCounter++;
+    if (frameCounter >= 60) {
+        timer--;
+        frameCounter = 0;
+        if (timer <= 0) {
+            goToLose();
+        }
     }
 }

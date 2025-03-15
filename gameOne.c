@@ -40,14 +40,16 @@ void drawGameOne() {
     drawPlayer();
     drawBomb();
 
-    // Display score and lives in top left
+    // Display timer, score, and lives (using row 17 for timer)
+    drawText(1, 17, "TIME:");
+    drawText(7, 17, "   ");         // Clear previous timer value
+    drawNumber(7, 17, timer);
+
     drawText(1, 18, "SCORE:");
-    // Clear
-    drawText(9, 18, "   ");
+    drawText(9, 18, "   ");         // Clear previous score value
     drawNumber(9, 18, score);
 
     drawText(1, 19, "LIVES:");
-    // Clear
-    drawText(9, 19, "   ");
+    drawText(9, 19, "   ");         // Clear previous lives value
     drawNumber(9, 19, lives);
 }

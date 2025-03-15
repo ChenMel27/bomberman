@@ -40,7 +40,7 @@ int isPassablePixel(int x, int y, int game) {
     // Use colorAt
     if (game == 1) {
         if(x < 0 || x >= COLLISION_MAP_WIDTH || y < 0 || y >= COLLISION_MAP_HEIGHT) return 0;
-        return (colorAt(x, y) != 0 && colorAt(x, y) != 1);
+        return (colorAt(x, y) != 0 && colorAt(x, y) != 2);
     // Use colorAt2
     } else if (game == 2) {
         if(x < 0 || x >= COLLISION_MAP_WIDTH || y < 0 || y >= COLLISION_MAP_HEIGHT) return 0;

@@ -3,6 +3,7 @@
 
 extern int score;
 extern int lives;
+extern int timer;
 
 void updateGameTwo();
 void drawGameTwo();

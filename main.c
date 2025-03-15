@@ -39,6 +39,10 @@ int state;
 // Score and lives trackers
 int score = 0;
 int lives = 3;
+// Global timer variables
+int timer;         // Seconds remaining
+int frameCounter;  // Counts frames (reset every 60 frames)
+
 
 int paused = 0;
 
@@ -134,16 +138,18 @@ void goToGameOne() {
         initializePlayer();
         lives = 3;
         round = 1;
+        timer = 60;       // 60 seconds for Game One
+        frameCounter = 0;
     }
 }
 
 
 void gameOne() {
     updateGameOne();
+    updateTimer();   // Update the timer every frame
     drawGameOne();
     waitForVBlank();
 
-    // Pause
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToPause();
     }
@@ -157,23 +163,18 @@ void goToGameTwo() {
         score = 0;
         lives = 3;
         round = 2;
-
-        // Reset power-up
         playerImmuneToBombs = 0;
-        
-        // Full reset of enemies
         initializeEnemies(1);
         initializePlayer();
+        timer = 60;
+        frameCounter = 0;
     }
     state = GAMETWO;
 }
 
-
-
-
 void gameTwo() {
     updateGameTwo();
-    // Clear leftover text
+    updateTimer();
     drawText(1, 18, "          ");
     drawText(1, 19, "          ");
     drawGameTwo();
@@ -249,5 +250,16 @@ void win() {
     
     if (BUTTON_PRESSED(BUTTON_START)) {
             goToStart();
+    }
+}
+
+void updateTimer() {
+    frameCounter++;
+    if (frameCounter >= 60) {  // Assuming 60 frames per second
+        timer--;
+        frameCounter = 0;
+        if (timer <= 0) {
+            goToLose();
+        }
     }
 }

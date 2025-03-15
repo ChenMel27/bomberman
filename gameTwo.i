@@ -378,6 +378,7 @@ extern const unsigned short spritePal[256];
 # 11 "gameOne.h"
 extern int score;
 extern int lives;
+extern int timer;
 
 void updateGameOne();
 void drawGameOne();
@@ -432,20 +433,21 @@ void updateGameTwo() {
     }
 }
 
-
 void drawGameTwo() {
     drawEnemies();
     drawPlayer();
     drawBomb();
 
 
-    drawText(1, 18, "SCORE:");
+    drawText(1, 17, "TIME:");
+    drawText(7, 17, "   ");
+    drawNumber(7, 17, timer);
 
+    drawText(1, 18, "SCORE:");
     drawText(9, 18, "   ");
     drawNumber(9, 18, score);
 
     drawText(1, 19, "LIVES:");
-
     drawText(9, 19, "   ");
     drawNumber(9, 19, lives);
 }

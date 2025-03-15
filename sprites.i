@@ -403,6 +403,7 @@ extern const unsigned short spritePal[256];
 # 11 "gameOne.h"
 extern int score;
 extern int lives;
+extern int timer;
 
 void updateGameOne();
 void drawGameOne();

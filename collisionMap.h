@@ -1,14 +1,15 @@
+
 //{{BLOCK(collisionMap)
 
 //======================================================================
 //
-//  collisionMap, 512x256@8, 
-//  + bitmap not compressed
-//  Total size: 131072 = 131072
+//	collisionMap, 512x256@8, 
+//	+ bitmap not compressed
+//	Total size: 131072 = 131072
 //
-//  Time-stamp: 2025-03-11, 19:26:10
-//  Exported by Cearn's GBA Image Transmogrifier, v0.8.3
-//  ( http://www.coranac.com/projects/#grit )
+//	Time-stamp: 2025-03-15, 09:16:53
+//	Exported by Cearn's GBA Image Transmogrifier, v0.8.3
+//	( http://www.coranac.com/projects/#grit )
 //
 //======================================================================
 
