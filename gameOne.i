@@ -446,8 +446,8 @@ void drawGameOne() {
     drawNumber(7, 17, timer);
 
     drawText(1, 18, "SCORE:");
-    drawText(9, 18, "   ");
-    drawNumber(9, 18, score);
+    drawText(9, 18, " ");
+    drawNumber(7, 18, score);
 
     drawText(1, 19, "LIVES:");
     drawText(9, 19, "   ");

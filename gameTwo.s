@@ -94,6 +94,9 @@ updateGameTwo:
 	.ascii	"SCORE:\000"
 	.align	2
 .LC3:
+	.ascii	" \000"
+	.align	2
+.LC4:
 	.ascii	"LIVES:\000"
 	.text
 	.align	2
@@ -140,20 +143,20 @@ drawGameTwo:
 	ldr	r2, .L19+32
 	mov	lr, pc
 	bx	r4
-	mov	r2, r6
 	mov	r1, #18
 	mov	r0, #9
+	ldr	r2, .L19+36
 	mov	lr, pc
 	bx	r4
-	ldr	r3, .L19+36
+	ldr	r3, .L19+40
 	mov	r1, #18
 	ldr	r2, [r3]
-	mov	r0, #9
+	mov	r0, #7
 	mov	lr, pc
 	bx	r5
 	mov	r1, #19
 	mov	r0, #1
-	ldr	r2, .L19+40
+	ldr	r2, .L19+44
 	mov	lr, pc
 	bx	r4
 	mov	r2, r6
@@ -161,7 +164,7 @@ drawGameTwo:
 	mov	r0, #9
 	mov	lr, pc
 	bx	r4
-	ldr	r3, .L19+44
+	ldr	r3, .L19+48
 	mov	r1, #19
 	mov	r0, #9
 	ldr	r2, [r3]
@@ -181,8 +184,9 @@ drawGameTwo:
 	.word	timer
 	.word	drawNumber
 	.word	.LC2
-	.word	score
 	.word	.LC3
+	.word	score
+	.word	.LC4
 	.word	lives
 	.size	drawGameTwo, .-drawGameTwo
 	.ident	"GCC: (devkitARM release 53) 9.1.0"
